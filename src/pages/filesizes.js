@@ -80,12 +80,6 @@ leftCol.on('select', function(node) {
 
 });
 
-screen.key(['tab'], function(ch, key) {
-  if(screen.focused === leftCol)
-    right.focus();
-  else
-    leftCol.focus();
-});
 
 leftCol.focus();
 

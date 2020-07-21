@@ -5,6 +5,15 @@ const screen = blessed.screen();
 const homePage = require('./src/pages/home');
 const fileSizesPage = require('./src/pages/filesizes');
 
+/*
+screen.key(['tab'], function(ch, key) {
+  if(screen.focused === leftCol)
+    right.focus();
+  else
+    leftCol.focus();
+});
+*/
+
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
   return process.exit(0);
 });
