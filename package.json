@@ -1,19 +1,31 @@
 {
-  "name": "eax",
-  "version": "1.0.0",
-  "description": "",
+  "name": "ember-app-explorer",
+  "version": "0.0.0",
+  "description": "Ember.js app explorer",
   "main": "index.js",
+  "bin": {
+    "ember-app-explorer": "bin/cli.js",
+    "eax": "bin/cli.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "git push && git push --tags && npm publish"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Rajasegar Chandran <rajasegar.c@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.20",
     "filesize": "^6.1.0",
     "ramda": "^0.27.0",
     "walk-sync": "^2.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.0.5"
   }
 }
