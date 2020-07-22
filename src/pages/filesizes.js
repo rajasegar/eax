@@ -55,9 +55,9 @@ right.setData({headers: ['Name', 'Size'], data: [[]]});
 
 
 leftCol.on('select', function(node) {
-  //console.log(node);
   const { content } = node;
   const name = content.slice(0,1).toLowerCase() + content.slice(1);
+  right.setLabel(`${content}: app/${name}`);
   const folder = path.resolve(`${root}/app/${name}`);
   let items = walkSync(folder, { 
     directories: false,
@@ -86,6 +86,13 @@ leftCol.on('select', function(node) {
 
 
 leftCol.focus();
+
+screen.key(['tab'], function(ch, key) {
+  if(screen.focused === leftCol)
+    right.focus();
+  else
+    leftCol.focus();
+});
 
 screen.render()
 };
