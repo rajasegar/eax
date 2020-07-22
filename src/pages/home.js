@@ -1,11 +1,15 @@
+'use strict';
+
 const contrib = require('blessed-contrib');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const path = require('path');
 
 
 module.exports = function(screen) {
 
-  const root = '/Users/rajasegarchandran/Code/freshsales/frontend';
+const _root = process.argv[2] || ".";
+const root = path.resolve(_root);
   const folders = [
     'adapters',
     'components',

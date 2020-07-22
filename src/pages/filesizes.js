@@ -1,3 +1,5 @@
+'use strict';
+
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const walkSync = require('walk-sync');
@@ -10,7 +12,8 @@ module.exports = function(screen) {
 
 const grid = new contrib.grid({rows: 12, cols: 12, screen: screen});
 
-const root = '/Users/rajasegarchandran/Code/freshsales/frontend';
+const _root = process.argv[2] || ".";
+const root = path.resolve(_root);
 
 const menu = [
   'Adapters',
@@ -39,12 +42,12 @@ const leftCol = grid.set(0, 0, 12, 3, blessed.list, {
 });
 leftCol.setItems(menu);
 
-const right = grid.set(0, 3, 12, 10, contrib.table, {
-  label: 'Page', 
+const right = grid.set(0, 3, 12, 9, contrib.table, {
+  label: 'Items', 
   keys: true, 
   vi: true,
   style: { fg: 'yellow', bg: 'black'},
-  columnWidth: [100, 10]
+  columnWidth: [70, 10]
 });
 
 //set default table
@@ -71,8 +74,9 @@ leftCol.on('select', function(node) {
   ]);
 
   items = fileSizeSort(items).map(i => {
-    const [ name , size ] = i;
-    return [name, filesize(size)];
+    const [ fileName , size ] = i;
+
+    return [fileName.replace(`/app/${name}/`,''), filesize(size)];
   });
 
   right.setData({headers: ['Name', 'Size'], data: items});
