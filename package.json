@@ -1,6 +1,6 @@
 {
   "name": "ember-app-explorer",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Ember.js app explorer",
   "main": "index.js",
   "bin": {
@@ -11,7 +11,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "git push && git push --tags && npm publish"
   },
-  "keywords": ["cli", "ember", "ember.js", "terminal", "explorer"],
+  "keywords": [
+    "cli",
+    "ember",
+    "ember.js",
+    "terminal",
+    "explorer"
+  ],
   "author": "Rajasegar Chandran <rajasegar.c@gmail.com>",
   "repository": "https://github.com/rajasegar/eax",
   "license": "MIT",
