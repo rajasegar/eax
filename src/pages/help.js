@@ -27,6 +27,8 @@ module.exports = function(screen) {
     ['Down', 'Down Arrow / j'],
     ['Select', 'Enter / l'],
     ['Quit', 'q / Esc / Ctrl-c'],
+    ['Help', '?'],
+    ['Go to Home', 'h'],
   ];
 
   helpWidget.setData({headers: ['Function', 'Key'], data: helpKeys});

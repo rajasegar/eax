@@ -1,9 +1,11 @@
 'use strict';
 
+const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const path = require('path');
+
 
 module.exports = function(screen) {
 
@@ -30,9 +32,25 @@ const root = path.resolve(_root);
 
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
-  const topRow = grid.set(0,0,6,12, contrib.bar, { label: 'Total File Size (KB)'
+   const logo = grid.set(0,0,6,4, contrib.lcd,
+     { 
+       segmentWidth: 0.1 // how wide are the segments in % so 50% = 0.5
+     , segmentInterval: 0.11 // spacing between the segments in % so 50% = 0.550% = 0.5
+     , strokeWidth: 0.11 // spacing between the segments in % so 50% = 0.5
+     , elements: 4 // how many elements in the display. or how many characters can be displayed.
+     , display: 321 // what should be displayed before first call to setDisplay
+     , elementSpacing: 4 // spacing between each element
+     , elementPadding: 2 // how far away from the edges to put the elements
+     , color: 'white' // color for the segments
+       , label: 'EAX'});
+
+  logo.setDisplay('EAX');
+
+
+
+  const topRow = grid.set(0,4,6,8, contrib.bar, { label: 'Total File Size (KB)'
       , barWidth: 4
-      , barSpacing: 10
+      , barSpacing: 5
       , xOffset: 0
       , maxHeight: 9});
 
@@ -68,7 +86,7 @@ const root = path.resolve(_root);
         .replace('/app/','')
       .replace('\n','');
 
-      let _percent = Math.ceil(( size / appSize ) * 100);
+      let _percent = Math.round(( size / appSize ) * 100);
 
       // This is a bug in Donut widget
       if(_percent === 1) _percent = 0.01;

@@ -4,7 +4,16 @@ const screen = blessed.screen();
 
 const homePage = require('./src/pages/home');
 const fileSizesPage = require('./src/pages/filesizes');
-const component = require('./src/pages/component');
+const components = require('./src/pages/components');
+const routes = require('./src/pages/routes');
+const models = require('./src/pages/models');
+const mixins = require('./src/pages/mixins');
+const adapters = require('./src/pages/adapters');
+const controllers = require('./src/pages/controllers');
+const helpers = require('./src/pages/helpers');
+const utils = require('./src/pages/utils');
+const services = require('./src/pages/services');
+const buildPage = require('./src/pages/build-assets');
 const helpPage = require('./src/pages/help');
 
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
@@ -15,7 +24,16 @@ screen.key(['escape', 'q', 'C-c'], function(ch, key) {
 var carousel = new contrib.carousel( [
   homePage, 
   fileSizesPage, 
-    component,
+  components,
+  routes,
+  models,
+  mixins,
+  adapters,
+  controllers,
+  helpers,
+  utils,
+  services,
+  buildPage,
   helpPage]
   , { screen: screen
     , interval: 0 //how often to switch views (set 0 to never swicth automatically)
