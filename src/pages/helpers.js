@@ -18,16 +18,26 @@ module.exports = function(screen) {
   const root = path.resolve(_root);
   const namespace = 'app/helpers';
 
-  function search(err,value) {
-    return value;
-  };
+  const prompt = blessed.prompt({
+    parent: screen,
+    top: 'center',
+    left: 'center',
+    height: 'shrink',
+    width: 'shrink',
+    border: 'line'
+  });
 
   const leftCol = grid.set(0, 0, 12, 3, blessed.list, {
     label: 'Helpers', 
     keys: true, 
     vi: true,
     style: { fg: 'yellow', selected: { bg: 'blue' } },
-    search
+    search:  function(callback) {
+      prompt.input('Search Helper:', '', function(err, value) {
+        if (err) return;
+        return callback(null, value);
+      });
+    }
   });
 
   const folder = path.resolve(`${root}/${namespace}`);
@@ -66,7 +76,6 @@ module.exports = function(screen) {
     keys: true, 
     vi: true,
     style: { fg: 'yellow', selected: { bg: 'blue' } },
-    search
   });
 
   leftCol.on('select', function(node) {
@@ -107,5 +116,6 @@ module.exports = function(screen) {
 
   leftCol.focus();
 
+  screen.append(prompt);
   screen.render()
 };

@@ -17,19 +17,27 @@ module.exports = function(screen) {
   const _root = process.argv[2] || ".";
   const root = path.resolve(_root);
 
-  function search(err,value) {
-    return value;
-  };
+  const prompt = blessed.prompt({
+    parent: screen,
+    top: 'center',
+    left: 'center',
+    height: 'shrink',
+    width: 'shrink',
+    border: 'line'
+  });
 
   const leftCol = grid.set(0, 0, 12, 3, blessed.list, {
     label: 'Components', 
     keys: true, 
     vi: true,
     style: { fg: 'yellow', selected: { bg: 'blue' } },
-
-    search
+    search:  function(callback) {
+      prompt.input('Search Component:', '', function(err, value) {
+        if (err) return;
+        return callback(null, value);
+      });
+    }
   });
-
 
   const folder = path.resolve(`${root}/app/components`);
   let items = walkSync(folder, { 
@@ -61,7 +69,6 @@ module.exports = function(screen) {
   const usedInComponents = grid.set(4, 7, 8, 4, blessed.list, {
     label: 'Used in Components', 
   });
-
 
   const mixins = grid.set(2, 5, 2, 2, blessed.box, {
     label: 'Mixins', 
@@ -125,5 +132,6 @@ module.exports = function(screen) {
 
   leftCol.focus();
 
+  screen.append(prompt);
   screen.render()
 };

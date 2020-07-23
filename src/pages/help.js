@@ -29,6 +29,7 @@ module.exports = function(screen) {
     ['Quit', 'q / Esc / Ctrl-c'],
     ['Help', '?'],
     ['Go to Home', 'h'],
+    ['Search', '/']
   ];
 
   helpWidget.setData({headers: ['Function', 'Key'], data: helpKeys});

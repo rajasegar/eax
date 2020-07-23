@@ -18,16 +18,27 @@ module.exports = function(screen) {
   const root = path.resolve(_root);
   const namespace = 'app/mixins';
 
-  function search(err,value) {
-    return value;
-  };
+
+  const searchPrompt = blessed.prompt({
+    parent: screen,
+    top: 'center',
+    left: 'center',
+    height: 'shrink',
+    width: 'shrink',
+    border: 'line'
+  });
 
   const leftCol = grid.set(0, 0, 12, 3, blessed.list, {
     label: 'Mixins', 
     keys: true, 
     vi: true,
     style: { fg: 'yellow', selected: { bg: 'blue' } },
-    search
+    search:  function(callback) {
+      searchPrompt.input('Search Mixin:', '', function(err, value) {
+        if (err) return;
+        return callback(null, value);
+      });
+    }
   });
 
   const folder = path.resolve(`${root}/${namespace}`);
@@ -55,7 +66,6 @@ module.exports = function(screen) {
     keys: true, 
     vi: true,
     style: { fg: 'yellow', selected: { bg: 'blue' } },
-    search
   });
 
   const mixins = grid.set(2, 5, 2, 2, blessed.box, {
@@ -110,6 +120,8 @@ module.exports = function(screen) {
   });
 
   leftCol.focus();
+
+  screen.append(searchPrompt);
 
   screen.render()
 };
