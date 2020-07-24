@@ -29,7 +29,7 @@ eax ~/Users/user/code/my-ember-app
 ```
 
 ## Screenshots
-![screenshots/home.png]
+![screenshot](screenshots/home.png)
 
 ## Help
 ```
