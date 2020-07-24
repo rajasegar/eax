@@ -6,6 +6,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 const fs = require('fs');
+const walkSync = require('walk-sync');
 
 
 module.exports = function(screen) {
@@ -32,6 +33,10 @@ module.exports = function(screen) {
     'utils',
     //'validators'
   ];
+
+  let _folders = walkSync.entries(`${root}/app`).filter(entry => entry.isDirectory());
+
+  _folders = _folders.map(f => f.relativePath.replace('/','')).filter(f => folders.includes(f));
 
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
@@ -99,7 +104,7 @@ module.exports = function(screen) {
 
     const appSize = appData.stdout.split('\t')[0];
 
-    const temp = folders.map(f => {
+    const temp = _folders.map(f => {
       return exec(`du -sk ${root}/app/${f}`);
     });
 
