@@ -11,6 +11,8 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const semver = require('semver');
 const voca = require('voca');
+const getUtilDeps = require('../utils/getUtilDeps');
+const getMixinDeps = require('../utils/getMixinDeps');
 
 module.exports = function(screen) {
 
@@ -90,7 +92,7 @@ _items = walkSync(folder, {
     label: 'Used in Components', 
   });
 
-  const mixins = grid.set(2, 5, 2, 2, blessed.box, {
+  const mixins = grid.set(2, 5, 2, 2, blessed.list, {
     label: 'Mixins', 
   });
 
@@ -101,7 +103,7 @@ _items = walkSync(folder, {
   const helpers = grid.set(2, 9, 2, 2, blessed.box, {
     label: 'Helpers', 
   });
-  const utils = grid.set(2, 3, 2, 2, blessed.box, {
+  const utils = grid.set(2, 3, 2, 2, blessed.list, {
     label: 'Utils', 
   });
   leftCol.on('select', function(node) {
@@ -149,7 +151,20 @@ _items = walkSync(folder, {
       usedInComponents.setLabel(`Used in ${componentList.length} components`);
       usedInRoutes.setItems(routeList);
       usedInRoutes.setLabel(`Used in ${routeList.length} routes`);
-      screen.render();
+
+      getUtilDeps(js).then(data => {
+        utils.setItems(data);
+        utils.setLabel(`Utils (${data.length})`);
+        screen.render();
+      });
+
+
+      getMixinDeps(js).then(data => {
+        mixins.setItems(data);
+        mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
+
     }).catch(err => {
       // TODO: Log these errors
       //console.log(err);
