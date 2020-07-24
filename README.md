@@ -1,6 +1,12 @@
 # ember-app-explorer
 A CLI tool to explore your Ember.js app folders
 
+## Features
+- View File size composition of your `app/` folder
+- Find the file size of your components, routes, etc in decreasing order
+- Find where your components, services are used in the app
+- Find the asset composition of your builds like percentage of JS,CSS and images
+
 ## Install
 ```
 npm i -g ember-app-explorer
@@ -30,6 +36,10 @@ eax ~/Users/user/code/my-ember-app
 
 ## Screenshots
 ![screenshot](screenshots/home.png)
+
+![build](screenshots/build.png)
+
+![components](screenshots/components.png)
 
 ## Help
 ```
