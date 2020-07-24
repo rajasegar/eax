@@ -25,7 +25,7 @@ module.exports = function(screen) {
     , maxHeight: 9});
 
   const bottomRow = grid.set(6,0,6,12, contrib.donut, {
-    label: 'Size composition of dist/ folder',
+    label: 'Size composition of dist/assets/ folder',
     radius: 16,
     arcWidth: 3,
     remainColor: 'black',

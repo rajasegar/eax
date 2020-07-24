@@ -20,10 +20,6 @@ npx ember-app-explorer
 
 ## Usage
 
-```
-ember-app-explorer
-```
-
 Using current folder.
 ```
 eax 
