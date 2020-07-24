@@ -52,4 +52,25 @@ eax ~/Users/user/code/my-ember-app
     ['Go to the end of any list', 'G']
 ```
 
+## FAQs
 
+### How do I quit this thing?
+You can press `q`, or `Esc` or `C-c` to quit the program at any time.
+
+### How can I see the keyboard shortcuts for navigating?
+Press `?` to see the keyboard navigation shortcuts page.
+
+### How can I quickly navigate to home page screen?
+Press `h` to go to the home page.
+
+### How do I navigate between different pages of the cli?
+You can use the arrow keys to navigate between pages, `Left Arrow` to previous screen
+and `Right Arrow` to next screen.
+
+### How can I search for items in the list?
+Press `/` to search in any list. A popup dialog will appear to enter the search term,
+if the search functionality is enabled for that list where you have the focus.
+The search term is fuzzy which means you can search for any part of the name.
+
+### Does it support vi/vim navigation keys in the lists?
+Yes
