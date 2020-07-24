@@ -9,6 +9,8 @@ const R = require('ramda');
 const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const semver = require('semver');
+const voca = require('voca');
 
 module.exports = function(screen) {
 
@@ -16,6 +18,10 @@ module.exports = function(screen) {
 
   const _root = process.argv[2] || ".";
   const root = path.resolve(_root);
+
+  const packageManifest = JSON.parse(fs.readFileSync(`${root}/package.json`, 'utf-8'));
+  const emberCli = packageManifest.devDependencies['ember-cli'];
+  const isOctane = semver.gte(semver.coerce(emberCli), semver.valid('3.15.0'));
 
   const prompt = blessed.prompt({
     parent: screen,
@@ -40,14 +46,28 @@ module.exports = function(screen) {
   });
 
   const folder = path.resolve(`${root}/app/components`);
-  let items = walkSync(folder, { 
+  let _items = walkSync(folder, { 
     directories: false,
     includeBasePath: true,
     globs: ['**/*/component.js'],
     ignore: ['.gitkeep', 'template.hbs', 'style.scss']
-  }).map(f => {
+  })
+
+  const pods = _items.length > 0;
+
+  if(!pods) { // No pods style
+
+_items = walkSync(folder, { 
+    directories: false,
+    includeBasePath: true,
+    globs: ['**/*.js'],
+    ignore: ['.gitkeep']
+  })
+  }
+
+  const items = _items.map(f => {
     let s =  f.replace(`${root}/app/components/`,'');
-    s = s.replace('/component.js','');
+    s = pods ? s.replace('/component.js','') : s.replace('.js','');
     return s;
   });
 
@@ -87,8 +107,8 @@ module.exports = function(screen) {
   leftCol.on('select', function(node) {
     //console.log(node);
     const { content } = node;
-    const js = `${root}/app/components/${content}/component.js`;
-    const hbs = `${root}/app/components/${content}/template.hbs`;
+    const js = pods ? `${root}/app/components/${content}/component.js` : `${root}/app/components/${content}.js`;
+    const hbs = pods ? `${root}/app/components/${content}/template.hbs` : `${root}/app/templates/components/${content}.hbs`;
     const jsStat = fs.existsSync(js) && fs.statSync(js);
     const hbsStat = fs.existsSync(hbs) && fs.statSync(hbs);
     if(jsStat) {
@@ -99,7 +119,12 @@ module.exports = function(screen) {
     }
 
     // Find component name in all template files
-    exec(`find ${root}/app -name "*.hbs" | xargs grep -l "[{{{#]${content}"`).then(data => {
+    const componentName = isOctane ? content.split('-').map(voca.capitalize).join('') : content;
+    const findCommand = isOctane
+      ? `find ${root}/app -name "*.hbs" | xargs grep -l "<${componentName}"`
+      : `find ${root}/app -name "*.hbs" | xargs grep -l "[{{{#]${componentName}"`;
+
+    exec(findCommand).then(data => {
       let fileNames = data.stdout.split('\n').map(line => {
         return line.replace(root, '');
       });
@@ -107,8 +132,15 @@ module.exports = function(screen) {
       fileNames = fileNames.filter(Boolean); // remove empty entries
 
       const componentList = fileNames
-        .filter(f => f.includes('app/components'))
-        .map(f => f.replace('/app/components/','').replace('/template.hbs',''));
+        .filter(f =>  { 
+          return pods ? f.includes('app/components') : f.includes('app/templates/components');
+        })
+        .map(f => { 
+          return pods ?
+          f.replace('/app/components/','').replace('/template.hbs','')
+            : f.replace('/app/templates/components/','')
+        });
+
       const routeList = fileNames
         .filter(f => !f.includes('app/components'))
         .map(f => f.replace('/app/templates/',''));

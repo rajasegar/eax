@@ -3,6 +3,7 @@ dependencies:
   blessed-contrib: 4.8.20
   filesize: 6.1.0
   ramda: 0.27.0
+  semver: 7.3.2
   voca: 1.4.0
   walk-sync: 2.2.0
 devDependencies:
@@ -972,7 +973,6 @@ packages:
     resolution:
       integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
   /semver/7.3.2:
-    dev: true
     engines:
       node: '>=10'
     hasBin: true
@@ -1218,5 +1218,6 @@ specifiers:
   filesize: ^6.1.0
   prettier: ^2.0.5
   ramda: ^0.27.0
+  semver: ^7.3.2
   voca: ^1.4.0
   walk-sync: ^2.2.0

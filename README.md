@@ -28,3 +28,22 @@ Specifying a path
 eax ~/Users/user/code/my-ember-app
 ```
 
+## Screenshots
+![screenshots/home.png]
+
+## Help
+```
+    ['Next Page', 'Right Arrow'],
+    ['Prev Page', 'Left Arrow'],
+    ['Up', 'Up Arrow / k'],
+    ['Down', 'Down Arrow / j'],
+    ['Select', 'Enter / l'],
+    ['Quit', 'q / Esc / Ctrl-c'],
+    ['Help', '?'],
+    ['Go to Home', 'h'],
+    ['Search', '/'],
+    ['Go to the beginning of any list', 'gg'],
+    ['Go to the end of any list', 'G']
+```
+
+
