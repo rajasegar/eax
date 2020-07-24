@@ -1,5 +1,6 @@
 'use strict';
 
+const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
@@ -33,6 +34,25 @@ module.exports = function(screen) {
     data: []
   });
 
+
+  const prompt = blessed.message({
+    parent: screen,
+    top: 'center',
+    left: 'center',
+    height: 'shrink',
+    width: 'shrink',
+    border: 'line',
+    style: {
+      fg: 'black',
+      bg: 'yellow',
+      border: {
+        fg: '#f0f0f0'
+      },
+      hover: {
+        bg: 'green'
+      }
+    }
+  });
 
   const data = [];
 
@@ -75,11 +95,20 @@ module.exports = function(screen) {
 
       topRow.setData({ titles, data: [_js, _css, _img, _json]});
       bottomRow.setData(percent);
+      screen.append(prompt);
       screen.render();
 
     });
   }).catch(err => {
     
+    const message = `Looks like you didn't build your Ember project yet.
+    Please run 'ember build' and check again.
+    Press any key to dismiss this message.`;
+    prompt.display(message, 0, function(err, value) {
+        if (err) return;
+        //return callback(null, value);
+        return;
+      });
   });
 
 
