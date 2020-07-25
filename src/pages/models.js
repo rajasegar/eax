@@ -55,11 +55,9 @@ module.exports = function(screen) {
   leftCol.setLabel(`Models: (${items.length})`);
 
 
-  const component = grid.set(0, 7, 2, 2, blessed.box, {
+  const component = grid.set(0, 3, 2, 9, blessed.box, {
     label: 'File info:', 
   });
-
-
 
   const mixins = grid.set(2, 5, 2, 2, blessed.box, {
     label: 'Mixins', 
@@ -77,9 +75,12 @@ module.exports = function(screen) {
     //console.log(node);
     const { content } = node;
     const js = `${root}/${namespace}/${content}`;
-    const jsStat = fs.existsSync(js) && fs.statSync(js);
+    const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
     if(jsStat) {
-      component.setContent(`Size: ${filesize(jsStat.size)}`);
+      let _content = `Full path: ${js}`;
+      _content += `\nSize: ${filesize(jsStat.length)}`;
+      _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
+      component.setContent(_content);
     }
 
     screen.render();

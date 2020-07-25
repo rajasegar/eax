@@ -33,6 +33,7 @@ module.exports = function(screen) {
     keys: true, 
     vi: true,
     style: { fg: 'yellow', selected: { bg: 'blue' } },
+    label: 'Services',
     search:  function(callback) {
       prompt.input('Search Service:', '', function(err, value) {
         if (err) return;
