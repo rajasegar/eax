@@ -42,6 +42,7 @@ module.exports = function(screen) {
     height: 'shrink',
     width: 'shrink',
     border: 'line',
+    hidden: true,
     style: {
       fg: 'black',
       bg: 'yellow',
