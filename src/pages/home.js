@@ -73,7 +73,8 @@ module.exports = function(screen) {
   //set default table
   projWidget.setData({headers: ['', ''], data: projDetails});
 
-  const topRow = grid.set(0,4,6,8, contrib.bar, { label: 'Total File Size (KB)'
+  const topRow = grid.set(0,4,6,8, contrib.bar, { 
+    label: 'Total File Size (KB): ' + Math.round(appSize/1024)
     , barWidth: 4
     , barSpacing: 5
     , xOffset: 0
@@ -88,11 +89,12 @@ module.exports = function(screen) {
     data: []
   });
 
-  const data = [];
 
   const folderSizes = _folders.map(f => {
     return getFolderSize(`${root}/app/${f}`);
   });
+
+  const data = folderSizes.map(f => Math.round(f/1024)); // size in kb
 
   const  percent = folderSizes.map((size,index) => {
 
@@ -109,7 +111,7 @@ module.exports = function(screen) {
     };
   });
 
-  topRow.setData( { titles:_folders, data:folderSizes})
+  topRow.setData( { titles:_folders, data})
   bottomRow.setData(percent);
   screen.render();
 

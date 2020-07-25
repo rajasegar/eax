@@ -1,10 +1,10 @@
 const fs = require("fs")
 const walkSync = require('walk-sync');
 
-const getTotalSize = function(directoryPath) {
-  const arrayOfFiles = walkSync(directoryPath, { 
+const getTotalSize = function(assetsPath, globs) {
+  const arrayOfFiles = walkSync(assetsPath, { 
     directories: false, 
-    ignore: ['node_modules', '.git', 'tmp'], 
+    globs,
     includeBasePath: true 
   });
 

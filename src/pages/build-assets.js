@@ -4,7 +4,13 @@ const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const fs = require('fs');
 const path = require('path');
+const getFolderSize = require('../utils/getFolderSize');
+const getAssetSize = require('../utils/getAssetSize');
+const filesize = require('filesize');
+const walkSync = require('walk-sync');
+const zlib = require('zlib');
 
 module.exports = function(screen) {
 
@@ -19,13 +25,58 @@ module.exports = function(screen) {
 
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
-  const topRow = grid.set(0,0,6,12, contrib.bar, { label: 'Build Assets: (dist/assets) File Size (KB)'
+  const searchPrompt = blessed.prompt({
+    parent: screen,
+    top: 'center',
+    left: 'center',
+    height: 'shrink',
+    width: 'shrink',
+    border: 'line'
+  });
+
+
+  const table =  grid.set(0, 0, 6, 12, contrib.table, 
+    { keys: true
+      ,  vi: true
+      , fg: 'green'
+      , label: 'dist/assets/'
+      , columnWidth: [80, 10, 10],
+    search:  function(callback) {
+      searchPrompt.input('Search Component:', '', function(err, value) {
+        if (err) return;
+        return callback(null, value);
+      });
+    }
+    })
+
+  const assetsFolder = `${root}/dist/assets`;
+  let data = [[]];
+
+  if(fs.existsSync(assetsFolder)) {
+    data = walkSync(assetsFolder, {
+      directories: false,
+      includeBasePath: true,
+      globs: ['**/*.js','**/*.css','**/*.png','**/*.jpg','**/*.svg','**/*.json']
+    }).map(f => {
+      let contentsBuffer = fs.readFileSync(f);
+
+      const gzipSize = zlib.gzipSync(contentsBuffer).length;
+
+      return [f.replace(`${assetsFolder}/`,''), filesize(contentsBuffer.length),filesize(gzipSize)];
+    });
+  }
+
+  //set default table
+  table.setData({headers: ['Name','File Size','gzip'], data})
+
+  const barChart = grid.set(6,0,6,6, contrib.bar, { 
+    label: 'Build Assets: (dist/assets) File Size (KB)'
     , barWidth: 10
     , barSpacing: 10
     , xOffset: 0
     , maxHeight: 9});
 
-  const bottomRow = grid.set(6,0,6,12, contrib.donut, {
+  const donutChart = grid.set(6,6,6,6, contrib.donut, {
     label: 'Size composition of dist/assets/ folder',
     radius: 16,
     arcWidth: 3,
@@ -55,62 +106,48 @@ module.exports = function(screen) {
     }
   });
 
-  const data = [];
+  if(fs.existsSync(`${root}/dist/assets`)) {
+    const assetSize = getFolderSize(`${root}/dist/assets`);
+    barChart.setLabel('Build Assets: (dist/assets) File Size (KB): ' + Math.round(assetSize/1024) );
 
-  exec(`du -ck ${root}/dist/assets`).then(appData => {
+    const jsSize = getAssetSize(`${root}/dist/assets`, ['*.js']);
+    const cssSize = getAssetSize(`${root}/dist/assets`,['*.css']);
+    const imgSize = getAssetSize(`${root}/dist/assets`, ['**/*.png', '**/*.jpg', '**/*.svg']);
+    const jsonSize = getAssetSize(`${root}/dist/assets`, ['**/*.json']);
 
-    const _a = appData.stdout.split('\n')
-    const appSize = _a[_a.length - 2].split('\t')[0];
+    const donutData = [];
+    donutData.push({ label: 'JS', percent: Math.round(( jsSize / assetSize ) * 100) });
+    donutData.push({ label: 'CSS', percent: Math.round(( cssSize / assetSize ) * 100) });
+    donutData.push({ label: 'Images', percent: Math.round(( imgSize / assetSize ) * 100) });
+    donutData.push({ label: 'JSON', percent: Math.round(( jsonSize / assetSize ) * 100) });
 
-    const jsSize = exec(`find ${root}/dist/assets -name "*.js" | xargs du -ck `);
-    const cssSize = exec(`find ${root}/dist/assets -name "*.css" | xargs du -ck `);
-    const imgSize = exec(`find ${root}/dist/assets -type f \\( -name  "*.jpg" -o -name "*.png" -o -name "*.svg" \\) | xargs du -ck `);
-    const jsonSize = exec(`find ${root}/dist/assets -name "*.json" | xargs du -ck `);
-
-
-    Promise.all([jsSize, cssSize, imgSize, jsonSize]).then(values => {
-      //console.log(values);
-
-      let temp = values[0].stdout.split('\n');
-      const _js = temp[temp.length - 2].split('\t')[0];
-      temp = values[1].stdout.split('\n');
-      const _css = temp[temp.length - 2].split('\t')[0];
-      temp = values[2].stdout.split('\n');
-      const _img = temp[temp.length - 2].split('\t')[0];
-      temp = values[3].stdout.split('\n');
-      const _json = temp[temp.length - 2].split('\t')[0];
-      const donutData = [];
-      donutData.push({ label: 'JS', percent: Math.round(( _js / appSize ) * 100) });
-      donutData.push({ label: 'CSS', percent: Math.round(( _css / appSize ) * 100) });
-      donutData.push({ label: 'Images', percent: Math.round(( _img / appSize ) * 100) });
-      donutData.push({ label: 'JSON', percent: Math.round(( _json / appSize ) * 100) });
-
-      const percent = donutData.map((v,index) => {
-
-        return {
-          percent: v.percent,
-          label: v.label,
-          color: index
-        };
-      });
-
-      topRow.setData({ titles, data: [_js, _css, _img, _json]});
-      bottomRow.setData(percent);
-      screen.append(prompt);
-      screen.render();
-
+    const percent = donutData.map((v,index) => {
+      return {
+        percent: v.percent,
+        label: v.label,
+        color: index
+      };
     });
-  }).catch(err => {
-    
+
+    const kbSizes = [jsSize, cssSize, imgSize, jsonSize].map(s => Math.round(s/1024));
+
+    barChart.setData({ titles, data: kbSizes});
+    donutChart.setData(percent);
+    screen.append(prompt);
+    screen.append(searchPrompt);
+    screen.render();
+  } else {
     const message = `Looks like you didn't build your Ember project yet.
     Please run 'ember build' and check again.
     Press any key to dismiss this message.`;
     prompt.display(message, 0, function(err, value) {
-        if (err) return;
-        //return callback(null, value);
-        return;
-      });
-  });
+      if (err) return;
+      //return callback(null, value);
+      return;
+    });
+  }
+
+  table.focus();
 
 
 }
