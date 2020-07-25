@@ -34,24 +34,24 @@ module.exports = function(screen) {
     'Validators'
   ];
 
-  const leftCol = grid.set(0, 0, 12, 3, blessed.list, {
+  const leftCol = grid.set(0, 0, 12, 2, blessed.list, {
     label: 'Menu', 
     keys: true, 
     vi: true,
-    style: { fg: 'yellow', bg: 'black' }
+    style: { fg: 'yellow'  }
   });
   leftCol.setItems(menu);
 
-  const right = grid.set(0, 3, 12, 9, contrib.table, {
+  const right = grid.set(0, 2, 12, 10, contrib.table, {
     label: 'Items', 
     keys: true, 
     vi: true,
-    style: { fg: 'yellow', bg: 'black'},
-    columnWidth: [70, 10]
+    style: { fg: 'yellow'},
+    columnWidth: [80, 10, 10]
   });
 
   //set default table
-  right.setData({headers: ['Name', 'Size'], data: [[]]});
+  right.setData({headers: ['Name', 'Size', 'LOC'], data: [[]]});
 
 
   leftCol.on('select', function(node) {
@@ -66,11 +66,9 @@ module.exports = function(screen) {
         ignore: ['.*']
       });
 
-
       items = items.map(f => {
-        const stat = fs.statSync(f);
-        return [f.replace(root,''), stat.size];
-
+        const stat = fs.readFileSync(f, 'utf-8');
+        return [f.replace(root,''), stat.length, stat.split('\n').length - 1];
       });
 
       const fileSizeSort = R.sortWith([
@@ -78,15 +76,14 @@ module.exports = function(screen) {
       ]);
 
       items = fileSizeSort(items).map(i => {
-        const [ fileName , size ] = i;
-
-        return [fileName.replace(`/app/${name}/`,''), filesize(size)];
+        const [ fileName , size, loc ] = i;
+        return [fileName.replace(`/app/${name}/`,''), filesize(size), loc];
       });
 
-      right.setData({headers: ['Name', 'Size'], data: items});
+      right.setData({headers: ['Name', 'Size', 'LOC'], data: items});
       screen.render();
     } else {
-      right.setData({headers: ['Name', 'Size'], data: [[]]});
+      right.setData({headers: ['Name', 'Size', 'LOC'], data: [[]]});
       screen.render();
     }
   });

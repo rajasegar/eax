@@ -9,6 +9,8 @@ const R = require('ramda');
 const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const getUtilDeps = require('../utils/getUtilDeps');
+const getMixinDeps = require('../utils/getMixinDeps');
 
 module.exports = function(screen) {
 
@@ -53,11 +55,11 @@ module.exports = function(screen) {
   leftCol.setItems(items);
   leftCol.setLabel(`Routes: (${items.length})`);
 
-  const template = grid.set(0, 3, 2, 2, blessed.box, {
+  const template = grid.set(0, 3, 2, 4, blessed.box, {
     label: 'template.hbs', 
   });
 
-  const component = grid.set(0, 7, 2, 2, blessed.box, {
+  const component = grid.set(0, 7, 2, 4, blessed.box, {
     label: 'route.js', 
   });
 
@@ -66,7 +68,7 @@ module.exports = function(screen) {
   });
 
 
-  const mixins = grid.set(2, 5, 2, 2, blessed.box, {
+  const mixins = grid.set(2, 5, 2, 2, blessed.list, {
     label: 'Mixins', 
   });
 
@@ -78,7 +80,7 @@ module.exports = function(screen) {
     label: 'Helpers', 
   });
 
-  const utils = grid.set(2, 3, 2, 2, blessed.box, {
+  const utils = grid.set(2, 3, 2, 2, blessed.list, {
     label: 'Utils', 
   });
 
@@ -88,14 +90,33 @@ module.exports = function(screen) {
     const js = `${root}/app/routes/${content}`;
     const templateName = content.replace('.js','.hbs');
     const hbs = `${root}/app/templates/${templateName}`;
-    const jsStat = fs.existsSync(js) && fs.statSync(js);
-    const hbsStat = fs.existsSync(hbs) && fs.statSync(hbs);
+    const jsStat = fs.existsSync(js) && fs.readFileSync(js,'utf-8');
+    const hbsStat = fs.existsSync(hbs) && fs.readFileSync(hbs,'utf-8');
     if(jsStat) {
-      component.setContent(`Size: ${filesize(jsStat.size)}`);
+      let _content = `Full path: ${js}`;
+      _content += `\nSize: ${filesize(jsStat.length)}`;
+      _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
+      component.setContent(_content);
     }
     if(hbsStat) {
-      template.setContent(`Size: ${filesize(hbsStat.size)}`);
+      let _content = `Full path: ${hbs}`;
+      _content += `\nSize: ${filesize(hbsStat.length)}`;
+      _content += `\nLOC: ${hbsStat.split('\n').length - 1}`;
+      template.setContent(_content);
     }
+
+      getUtilDeps(js).then(data => {
+        utils.setItems(data);
+        utils.setLabel(`Utils (${data.length})`);
+        screen.render();
+      });
+
+
+      getMixinDeps(js).then(data => {
+        mixins.setItems(data);
+        mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
 
     screen.render();
 

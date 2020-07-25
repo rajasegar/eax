@@ -9,6 +9,8 @@ const R = require('ramda');
 const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const getUtilDeps = require('../utils/getUtilDeps');
+const getMixinDeps = require('../utils/getMixinDeps');
 
 module.exports = function(screen) {
 
@@ -55,7 +57,7 @@ module.exports = function(screen) {
     leftCol.setLabel(`Utils: (${items.length})`);
 
 
-    const component = grid.set(0, 7, 2, 2, blessed.box, {
+    const component = grid.set(0, 3, 2, 9, blessed.box, {
       label: 'File info:', 
     });
 
@@ -67,12 +69,12 @@ module.exports = function(screen) {
     });
 
 
-    const mixins = grid.set(2, 5, 2, 2, blessed.box, {
+    const mixins = grid.set(2, 3, 2, 4, blessed.list, {
       label: 'Mixins', 
     });
 
-    const services = grid.set(2, 7, 2, 2, blessed.box, {
-      label: 'Services', 
+    const utils = grid.set(2, 7, 2, 5, blessed.list, {
+      label: 'Utils', 
     });
 
 
@@ -81,9 +83,12 @@ module.exports = function(screen) {
       //console.log(node);
       const { content } = node;
       const js = `${root}/${namespace}/${content}`;
-      const jsStat = fs.existsSync(js) && fs.statSync(js);
+      const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
       if(jsStat) {
-        component.setContent(`Size: ${filesize(jsStat.size)}`);
+        let _content = `Full path: ${js}`;
+        _content += `\nSize: ${filesize(jsStat.length)}`;
+        _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
+        component.setContent(_content);
       }
 
 
@@ -111,6 +116,17 @@ module.exports = function(screen) {
       });
 
 
+      getUtilDeps(js).then(data => {
+        utils.setItems(data);
+        utils.setLabel(`Utils (${data.length})`);
+        screen.render();
+      });
+
+      getMixinDeps(js).then(data => {
+        mixins.setItems(data);
+        mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
       screen.render();
 
     });

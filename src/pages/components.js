@@ -77,11 +77,11 @@ _items = walkSync(folder, {
   leftCol.setItems(items);
   leftCol.setLabel(`Components: (${items.length})`);
 
-  const template = grid.set(0, 3, 2, 2, blessed.box, {
+  const template = grid.set(0, 3, 2, 4, blessed.box, {
     label: 'template.hbs', 
   });
 
-  const component = grid.set(0, 7, 2, 2, blessed.box, {
+  const component = grid.set(0, 7, 2, 4, blessed.box, {
     label: 'component.js', 
   });
 
@@ -111,13 +111,19 @@ _items = walkSync(folder, {
     const { content } = node;
     const js = pods ? `${root}/app/components/${content}/component.js` : `${root}/app/components/${content}.js`;
     const hbs = pods ? `${root}/app/components/${content}/template.hbs` : `${root}/app/templates/components/${content}.hbs`;
-    const jsStat = fs.existsSync(js) && fs.statSync(js);
-    const hbsStat = fs.existsSync(hbs) && fs.statSync(hbs);
+    const jsStat = fs.existsSync(js) && fs.readFileSync(js,'utf-8');
+    const hbsStat = fs.existsSync(hbs) && fs.readFileSync(hbs, 'utf-8');
     if(jsStat) {
-      component.setContent(`Size: ${filesize(jsStat.size)}`);
+      let _content = `Full Path: ${js}`;
+      _content += `\nSize: ${filesize(jsStat.length)}`;
+      _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
+      component.setContent(_content);
     }
     if(hbsStat) {
-      template.setContent(`Size: ${filesize(hbsStat.size)}`);
+      let _content = `Full Path: ${hbs}\n`;
+      _content += `Size: ${filesize(hbsStat.length)}`;
+      _content += `\nLOC: ${hbsStat.split('\n').length - 1}`;
+      template.setContent(_content);
     }
 
     // Find component name in all template files

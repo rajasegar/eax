@@ -23,46 +23,59 @@ screen.key(['escape', 'q', 'C-c'], function(ch, key) {
 
 const pages = [
   { name: 'home',
-    page: homePage
+    page: homePage,
+    keyCode: '0',
   },
   { name: 'fileSizes',
-    page: fileSizesPage
+    page: fileSizesPage,
+    keyCode: 'f',
   },
   { name: 'components',
-    page: components
+    page: components,
+    keyCode: 'c',
   },
   { name: 'routes',
-    page: routes
+    page: routes,
+    keyCode: 'r',
   },
   { name: 'models',
-    page: models
+    page: models,
+    keyCode: 'm',
   },
   { name: 'mixins',
-    page: mixins
+    page: mixins,
+    keyCode: 'x',
   },
   { name: 'adapters',
-    page: adapters
+    page: adapters,
+    keyCode: 'a',
   },
   {
     name: 'controllers',
     page: controllers,
+    keyCode: 'o',
   },
   {
     name: 'helpers',
-    page: helpers
+    page: helpers,
+    keyCode: 'h',
   },
   { name: 'utils',
-    page: utils
+    page: utils,
+    keyCode: 'u',
   },
   { name: 'services',
-    page: services
+    page: services,
+    keyCode: 's',
   },
   {
     name: 'build',
-    page: buildPage
+    page: buildPage,
+    keyCode: 'b',
   },
   { name: 'help',
-    page: helpPage
+    page: helpPage,
+    keyCode: '?',
   }
 
 ];
@@ -74,6 +87,15 @@ var carousel = new contrib.carousel(_pages
     , controlKeys: true  //should right and left keyboard arrows control view rotation
   })
 
+// Define keyboard navigations
+pages.forEach((p,index) => {
+  screen.key([p.keyCode], function(ch, key) {
+    carousel.currPage = index;
+    carousel.move();
+  });
+});
+
+/*
 // Show help page when ? is pressed
 screen.key(['?'], function(ch, key) {
   carousel.end(); 
@@ -89,5 +111,6 @@ screen.key(['b'], function(ch, key) {
   carousel.currPage = pages.findIndex(p => p.name === 'build');
   carousel.move();
 });
+*/
 
 module.exports = carousel;
