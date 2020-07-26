@@ -43,10 +43,13 @@ module.exports = function (screen) {
 
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
-  const gitRepo =
-    typeof packageManifest.repository === 'string'
-      ? packageManifest.repository
-      : packageManifest.repository.url;
+  let gitRepo = '';
+  if (packageManifest.repository) {
+    gitRepo =
+      typeof packageManifest.repository === 'string'
+        ? packageManifest.repository
+        : packageManifest.repository.url;
+  }
 
   let pacman = 'npm';
   if (fs.existsSync(`${root}/yarn.lock`)) pacman = 'yarn';
