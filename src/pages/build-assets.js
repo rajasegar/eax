@@ -2,8 +2,6 @@
 
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
 const path = require('path');
 const R = require('ramda');
@@ -13,15 +11,14 @@ const filesize = require('filesize');
 const walkSync = require('walk-sync');
 const zlib = require('zlib');
 
-module.exports = function(screen) {
-
-  const _root = process.argv[2] || ".";
+module.exports = function (screen) {
+  const _root = process.argv[2] || '.';
   const root = path.resolve(_root);
 
   const assetTypes = [
     { name: 'JS', globs: ['**/*.js'] },
     { name: 'CSS', globs: ['**/*.css'] },
-    { name: 'Images', globs: ['**/*.png','**/*.jpg','**/*.svg'] },
+    { name: 'Images', globs: ['**/*.png', '**/*.jpg', '**/*.svg'] },
     { name: 'JSON', globs: ['**/*.json'] },
   ];
 
@@ -33,51 +30,50 @@ module.exports = function(screen) {
     left: 'center',
     height: 'shrink',
     width: 'shrink',
-    border: 'line'
+    border: 'line',
   });
 
-
-  const assetTypeList = grid.set(0,0,6,2, blessed.list, {
+  const assetTypeList = grid.set(0, 0, 6, 2, blessed.list, {
     label: 'Asset Type',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'green', fg: 'black' } }
+    style: { fg: 'yellow', selected: { bg: 'green', fg: 'black' } },
   });
-  assetTypeList.setItems(assetTypes.map(a => a.name));
+  assetTypeList.setItems(assetTypes.map((a) => a.name));
 
-  const table =  grid.set(0, 2, 6, 10, contrib.table, 
-    { keys: true
-      ,  vi: true
-      , fg: 'green'
-      , label: 'dist/assets/'
-      , columnWidth: [80, 10, 10],
-      search:  function(callback) {
-        searchPrompt.input('Search Component:', '', function(err, value) {
-          if (err) return;
-          return callback(null, value);
-        });
-      }
-    })
+  const table = grid.set(0, 2, 6, 10, contrib.table, {
+    keys: true,
+    vi: true,
+    fg: 'green',
+    label: 'dist/assets/',
+    columnWidth: [80, 10, 10],
+    search: function (callback) {
+      searchPrompt.input('Search Component:', '', function (err, value) {
+        if (err) return;
+        return callback(null, value);
+      });
+    },
+  });
 
   const assetsFolder = `${root}/dist/assets`;
   let data = [[]];
 
-  const barChart = grid.set(6,0,6,6, contrib.bar, { 
-    label: 'Build Assets: (dist/assets) File Size (KB)'
-    , barWidth: 10
-    , barSpacing: 10
-    , xOffset: 0
-    , maxHeight: 9});
+  const barChart = grid.set(6, 0, 6, 6, contrib.bar, {
+    label: 'Build Assets: (dist/assets) File Size (KB)',
+    barWidth: 10,
+    barSpacing: 10,
+    xOffset: 0,
+    maxHeight: 9,
+  });
 
-  const donutChart = grid.set(6,6,6,6, contrib.donut, {
+  const donutChart = grid.set(6, 6, 6, 6, contrib.donut, {
     label: 'Size composition of dist/assets/ folder',
     radius: 16,
     arcWidth: 3,
     remainColor: 'black',
     yPadding: 2,
-    data: []
+    data: [],
   });
-
 
   const prompt = blessed.message({
     parent: screen,
@@ -91,74 +87,93 @@ module.exports = function(screen) {
       fg: 'black',
       bg: 'yellow',
       border: {
-        fg: '#f0f0f0'
+        fg: '#f0f0f0',
       },
       hover: {
-        bg: 'green'
-      }
-    }
+        bg: 'green',
+      },
+    },
   });
 
-  if(fs.existsSync(`${root}/dist/assets`)) {
+  if (fs.existsSync(`${root}/dist/assets`)) {
     const assetSize = getFolderSize(`${root}/dist/assets`);
-    barChart.setLabel('Build Assets: (dist/assets) File Size (KB): ' + Math.round(assetSize/1024) );
+    barChart.setLabel(
+      'Build Assets: (dist/assets) File Size (KB): ' +
+        Math.round(assetSize / 1024)
+    );
 
     const jsSize = getAssetSize(`${root}/dist/assets`, ['*.js']);
-    const cssSize = getAssetSize(`${root}/dist/assets`,['*.css']);
-    const imgSize = getAssetSize(`${root}/dist/assets`, ['**/*.png', '**/*.jpg', '**/*.svg']);
+    const cssSize = getAssetSize(`${root}/dist/assets`, ['*.css']);
+    const imgSize = getAssetSize(`${root}/dist/assets`, [
+      '**/*.png',
+      '**/*.jpg',
+      '**/*.svg',
+    ]);
     const jsonSize = getAssetSize(`${root}/dist/assets`, ['**/*.json']);
 
     const donutData = [];
-    donutData.push({ label: 'JS', percent: Math.round(( jsSize / assetSize ) * 100) });
-    donutData.push({ label: 'CSS', percent: Math.round(( cssSize / assetSize ) * 100) });
-    donutData.push({ label: 'Images', percent: Math.round(( imgSize / assetSize ) * 100) });
-    donutData.push({ label: 'JSON', percent: Math.round(( jsonSize / assetSize ) * 100) });
+    donutData.push({
+      label: 'JS',
+      percent: Math.round((jsSize / assetSize) * 100),
+    });
+    donutData.push({
+      label: 'CSS',
+      percent: Math.round((cssSize / assetSize) * 100),
+    });
+    donutData.push({
+      label: 'Images',
+      percent: Math.round((imgSize / assetSize) * 100),
+    });
+    donutData.push({
+      label: 'JSON',
+      percent: Math.round((jsonSize / assetSize) * 100),
+    });
 
-    const percent = donutData.map((v,index) => {
+    const percent = donutData.map((v, index) => {
       return {
         percent: v.percent,
         label: v.label,
-        color: index
+        color: index,
       };
     });
 
-    const kbSizes = [jsSize, cssSize, imgSize, jsonSize].map(s => Math.round(s/1024));
+    const kbSizes = [jsSize, cssSize, imgSize, jsonSize].map((s) =>
+      Math.round(s / 1024)
+    );
 
-    barChart.setData({ titles: assetTypes.map(a => a.name), data: kbSizes});
+    barChart.setData({ titles: assetTypes.map((a) => a.name), data: kbSizes });
     donutChart.setData(percent);
 
-
-    assetTypeList.on('select', function(node) {
-      const {content } = node;
+    assetTypeList.on('select', function (node) {
+      const { content } = node;
 
       data = walkSync(assetsFolder, {
         directories: false,
         includeBasePath: true,
-        globs: assetTypes.find(a => a.name === content).globs
-      }).map(f => {
+        globs: assetTypes.find((a) => a.name === content).globs,
+      }).map((f) => {
         let contentsBuffer = fs.readFileSync(f);
 
         const gzipSize = zlib.gzipSync(contentsBuffer).length;
 
-        return [f.replace(`${assetsFolder}/`,''), contentsBuffer.length,gzipSize];
+        return [
+          f.replace(`${assetsFolder}/`, ''),
+          contentsBuffer.length,
+          gzipSize,
+        ];
       });
 
+      const fileSizeSort = R.sortWith([R.descend(R.prop(2))]);
 
-      const fileSizeSort = R.sortWith([
-        R.descend(R.prop(2))
-      ]);
-
-      data = fileSizeSort(data).map(d => {
-        const [ name, length, gzip] = d;
-        return [name, filesize(length),filesize(gzip)];
+      data = fileSizeSort(data).map((d) => {
+        const [name, length, gzip] = d;
+        return [name, filesize(length), filesize(gzip)];
       });
-
 
       //set default table
-      table.setData({headers: ['Name','File Size','gzip'], data})
+      table.setData({ headers: ['Name', 'File Size', 'gzip'], data });
       screen.render();
     });
-
 
     screen.append(prompt);
     screen.append(searchPrompt);
@@ -168,7 +183,7 @@ module.exports = function(screen) {
     const message = `Looks like you didn't build your Ember project yet.
     Please run 'ember build' and check again.
       Press any key to dismiss this message.`;
-    prompt.display(message, 0, function(err, value) {
+    prompt.display(message, 0, function (err) {
       if (err) return;
       //return callback(null, value);
       return;
@@ -177,13 +192,10 @@ module.exports = function(screen) {
 
   assetTypeList.focus();
 
-  screen.key(['tab'], function(ch, key) {
-    if(screen.focused === assetTypeList)
-      table.focus();
-    else
-      assetTypeList.focus();
+  screen.key(['tab'], function (/*ch, key*/) {
+    if (screen.focused === assetTypeList) table.focus();
+    else assetTypeList.focus();
   });
 
-  screen.render()
-}
-
+  screen.render();
+};

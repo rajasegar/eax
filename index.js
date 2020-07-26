@@ -19,40 +19,18 @@ const log = require('./src/utils/log');
 
 log('Starting eax');
 
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
-  return process.exit(0);
+screen.key(['escape', 'q', 'C-c'], function (/*ch, key*/) {
+  return process.exit(0); // eslint-disable-line
 });
 
-
 const pages = [
-  { name: 'home',
-    page: homePage,
-    keyCode: '0',
-  },
-  { name: 'fileSizes',
-    page: fileSizesPage,
-    keyCode: 'f',
-  },
-  { name: 'components',
-    page: components,
-    keyCode: 'c',
-  },
-  { name: 'routes',
-    page: routes,
-    keyCode: 'r',
-  },
-  { name: 'models',
-    page: models,
-    keyCode: 'm',
-  },
-  { name: 'mixins',
-    page: mixins,
-    keyCode: 'x',
-  },
-  { name: 'adapters',
-    page: adapters,
-    keyCode: 'a',
-  },
+  { name: 'home', page: homePage, keyCode: '0' },
+  { name: 'fileSizes', page: fileSizesPage, keyCode: 'f' },
+  { name: 'components', page: components, keyCode: 'c' },
+  { name: 'routes', page: routes, keyCode: 'r' },
+  { name: 'models', page: models, keyCode: 'm' },
+  { name: 'mixins', page: mixins, keyCode: 'x' },
+  { name: 'adapters', page: adapters, keyCode: 'a' },
   {
     name: 'controllers',
     page: controllers,
@@ -63,57 +41,29 @@ const pages = [
     page: helpers,
     keyCode: 'h',
   },
-  { name: 'utils',
-    page: utils,
-    keyCode: 'u',
-  },
-  { name: 'services',
-    page: services,
-    keyCode: 's',
-  },
+  { name: 'utils', page: utils, keyCode: 'u' },
+  { name: 'services', page: services, keyCode: 's' },
   {
     name: 'build',
     page: buildPage,
     keyCode: 'b',
   },
-  { name: 'help',
-    page: helpPage,
-    keyCode: '?',
-  }
-
+  { name: 'help', page: helpPage, keyCode: '?' },
 ];
 
-const _pages = pages.map(p => p.page);
-var carousel = new contrib.carousel(_pages 
-  , { screen: screen
-    , interval: 0 //how often to switch views (set 0 to never swicth automatically)
-    , controlKeys: true  //should right and left keyboard arrows control view rotation
-  })
+const _pages = pages.map((p) => p.page);
+var carousel = new contrib.carousel(_pages, {
+  screen: screen,
+  interval: 0, //how often to switch views (set 0 to never swicth automatically)
+  controlKeys: true, //should right and left keyboard arrows control view rotation
+});
 
 // Define keyboard navigations
-pages.forEach((p,index) => {
-  screen.key([p.keyCode], function(ch, key) {
+pages.forEach((p, index) => {
+  screen.key([p.keyCode], function (/*ch, key*/) {
     carousel.currPage = index;
     carousel.move();
   });
 });
-
-/*
-// Show help page when ? is pressed
-screen.key(['?'], function(ch, key) {
-  carousel.end(); 
-});
-
-// Goto home when h key is pressed
-screen.key(['h'], function(ch, key) {
-  carousel.home();
-});
-
-// Goto build stats page when b key is pressed
-screen.key(['b'], function(ch, key) {
-  carousel.currPage = pages.findIndex(p => p.name === 'build');
-  carousel.move();
-});
-*/
 
 module.exports = carousel;

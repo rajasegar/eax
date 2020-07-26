@@ -1,23 +1,16 @@
 'use strict';
 
-const blessed = require('blessed');
 const contrib = require('blessed-contrib');
-const walkSync = require('walk-sync');
-const path = require('path');
-const fs = require('fs');
-const R = require('ramda');
-const filesize = require('filesize');
 
-module.exports = function(screen) {
-
-  const grid = new contrib.grid({rows: 12, cols: 12, screen: screen});
+module.exports = function (screen) {
+  const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
   const helpWidget = grid.set(0, 0, 12, 12, contrib.table, {
-    label: 'Help: Keyboard Navigation', 
+    label: 'Help: Keyboard Navigation',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', bg: 'black'},
-    columnWidth: [40, 40]
+    style: { fg: 'yellow', bg: 'black' },
+    columnWidth: [40, 40],
   });
 
   const helpKeys = [
@@ -37,17 +30,16 @@ module.exports = function(screen) {
     ['Go to Helpers', 'h'],
     ['Go to Mixins', 'x'],
     ['Go to Models', 'm'],
-    ['Go to Routes','r'],
-    ['Go to Services','s'],
-    ['Go to Utils','u'],
+    ['Go to Routes', 'r'],
+    ['Go to Services', 's'],
+    ['Go to Utils', 'u'],
     ['Search', '/'],
     ['Go to the beginning of any list', 'gg'],
-    ['Go to the end of any list', 'G']
+    ['Go to the end of any list', 'G'],
   ];
 
-  helpWidget.setData({headers: ['Function', 'Key'], data: helpKeys});
+  helpWidget.setData({ headers: ['Function', 'Key'], data: helpKeys });
   helpWidget.focus();
-
 
   screen.render();
 };

@@ -1,0 +1,57 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - master
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+    - uses: actions/checkout@v2
+    - uses: rwjblue/setup-volta@v1
+    - name: Install
+      run: yarn install
+    - name: ESLint
+      run: yarn lint
+
+  #coverage:
+    #name: Coverage
+    #runs-on: ubuntu-latest
+    #if: "!contains(github.event.head_commit.message, 'skip ci')"
+    #steps:
+
+    #- uses: actions/checkout@v2
+    #- uses: rwjblue/setup-volta@v1
+    
+    #- name: yarn install, run coveralls
+      #env:
+        #COVERALLS_REPO_TOKEN: ${{secrets.COVERALLS_REPO_TOKEN}}
+      #run: |
+        #yarn install
+        #yarn coverage
+        #yarn coveralls
+    #- name: Coveralls
+      #uses: coverallsapp/github-action@master
+      #with:
+        #github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Volta setup
+      uses: rwjblue/setup-volta@v1
+  
+    - name: Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: |
+        yarn install
+        yarn semantic-release

@@ -8,8 +8,11 @@
     "eax": "bin/cli.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "git push && git push --tags && npm publish"
+    "test": "qunit tests/*-test.js",
+    "deploy": "git push && git push --tags && npm publish",
+    "coverage": "nyc --reporter=lcov --reporter=text-summary npm run test",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "lint": "eslint ."
   },
   "keywords": [
     "cli",
@@ -31,10 +34,35 @@
     "walk-sync": "^2.2.0"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "semantic-release": "^17.1.1"
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json",
+            "CHANGELOG.md"
+          ],
+          "message": "release(version): Release ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ],
+      "@semantic-release/github"
+    ]
+  },
+  "engines": {
+    "node": ">= 10.16.0"
   }
 }
