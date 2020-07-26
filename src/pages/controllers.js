@@ -9,6 +9,11 @@ const R = require('ramda');
 const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const getFileInfo = require('../utils/getFileInfo');
+const getUtilDeps = require('../utils/getUtilDeps');
+const getMixinDeps = require('../utils/getMixinDeps');
+const getServiceDeps = require('../utils/getServiceDeps');
+
 
 module.exports = function(screen) {
 
@@ -55,21 +60,19 @@ module.exports = function(screen) {
   leftCol.setLabel(`Controllers: (${items.length})`);
 
 
-  const component = grid.set(0, 7, 2, 2, blessed.box, {
+  const fileInfo = grid.set(0, 3, 2, 9, blessed.box, {
     label: 'File info:', 
   });
 
-
-
-  const mixins = grid.set(2, 5, 2, 2, blessed.box, {
+  const mixins = grid.set(2, 5, 2, 2, blessed.list, {
     label: 'Mixins', 
   });
 
-  const services = grid.set(2, 7, 2, 2, blessed.box, {
+  const services = grid.set(2, 7, 2, 2, blessed.list, {
     label: 'Services', 
   });
 
-  const utils = grid.set(2, 3, 2, 2, blessed.box, {
+  const utils = grid.set(2, 3, 2, 2, blessed.list, {
     label: 'Utils', 
   });
 
@@ -77,10 +80,25 @@ module.exports = function(screen) {
     //console.log(node);
     const { content } = node;
     const js = `${root}/${namespace}/${content}`;
-    const jsStat = fs.existsSync(js) && fs.statSync(js);
-    if(jsStat) {
-      component.setContent(`Size: ${filesize(jsStat.size)}`);
-    }
+    fileInfo.setContent(getFileInfo(js));
+
+      getUtilDeps(js).then(data => {
+        utils.setItems(data);
+        utils.setLabel(`Utils (${data.length})`);
+        screen.render();
+      });
+
+      getMixinDeps(js).then(data => {
+        mixins.setItems(data);
+        mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
+
+      getServiceDeps(js).then(data => {
+        services.setItems(data);
+        services.setLabel(`Services (${data.length})`);
+        screen.render();
+      });
 
     screen.render();
 

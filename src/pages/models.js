@@ -9,6 +9,10 @@ const R = require('ramda');
 const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const getHasMany = require('../utils/getHasMany');
+const getBelongsTo = require('../utils/getBelongsTo');
+const getUtilDeps = require('../utils/getUtilDeps');
+const getMixinDeps = require('../utils/getMixinDeps');
 
 module.exports = function(screen) {
 
@@ -59,16 +63,19 @@ module.exports = function(screen) {
     label: 'File info:', 
   });
 
-  const mixins = grid.set(2, 5, 2, 2, blessed.box, {
-    label: 'Mixins', 
+  const hasManyWidget = grid.set(2, 3, 2, 2, blessed.list, {
+    label: 'hasMany', 
   });
 
-  const services = grid.set(2, 7, 2, 2, blessed.box, {
-    label: 'Services', 
+  const belongsToWidget = grid.set(2, 5, 2, 2, blessed.list, {
+    label: 'belongsTo', 
   });
 
-  const utils = grid.set(2, 3, 2, 2, blessed.box, {
+  const utils = grid.set(2, 7, 2, 2, blessed.list, {
     label: 'Utils', 
+  });
+  const mixins = grid.set(2, 9, 2, 2, blessed.list, {
+    label: 'Mixins', 
   });
 
   leftCol.on('select', function(node) {
@@ -82,6 +89,30 @@ module.exports = function(screen) {
       _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
       component.setContent(_content);
     }
+
+      getUtilDeps(js).then(data => {
+        utils.setItems(data);
+        utils.setLabel(`Utils (${data.length})`);
+        screen.render();
+      });
+
+      getMixinDeps(js).then(data => {
+        mixins.setItems(data);
+        mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
+
+      getHasMany(js).then(data => {
+        hasManyWidget.setItems(data);
+        hasManyWidget.setLabel(`hasMany (${data.length})`);
+        screen.render();
+      });
+
+      getBelongsTo(js).then(data => {
+        belongsToWidget.setItems(data);
+        belongsToWidget.setLabel(`belongsTo (${data.length})`);
+        screen.render();
+      });
 
     screen.render();
 

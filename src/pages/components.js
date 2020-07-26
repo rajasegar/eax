@@ -13,6 +13,7 @@ const semver = require('semver');
 const voca = require('voca');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
+const getServiceDeps = require('../utils/getServiceDeps');
 
 module.exports = function(screen) {
 
@@ -96,7 +97,7 @@ _items = walkSync(folder, {
     label: 'Mixins', 
   });
 
-  const services = grid.set(2, 7, 2, 2, blessed.box, {
+  const services = grid.set(2, 7, 2, 2, blessed.list, {
     label: 'Services', 
   });
 
@@ -164,10 +165,15 @@ _items = walkSync(folder, {
         screen.render();
       });
 
-
       getMixinDeps(js).then(data => {
         mixins.setItems(data);
         mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
+
+      getServiceDeps(js).then(data => {
+        services.setItems(data);
+        services.setLabel(`Services (${data.length})`);
         screen.render();
       });
 

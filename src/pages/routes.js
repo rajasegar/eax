@@ -11,6 +11,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
+const getServiceDeps = require('../utils/getServiceDeps');
 
 module.exports = function(screen) {
 
@@ -72,7 +73,7 @@ module.exports = function(screen) {
     label: 'Mixins', 
   });
 
-  const services = grid.set(2, 7, 2, 2, blessed.box, {
+  const services = grid.set(2, 7, 2, 2, blessed.list, {
     label: 'Services', 
   });
 
@@ -115,6 +116,12 @@ module.exports = function(screen) {
       getMixinDeps(js).then(data => {
         mixins.setItems(data);
         mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
+
+      getServiceDeps(js).then(data => {
+        services.setItems(data);
+        services.setLabel(`Services (${data.length})`);
         screen.render();
       });
 

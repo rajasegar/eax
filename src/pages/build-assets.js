@@ -6,6 +6,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
 const path = require('path');
+const R = require('ramda');
 const getFolderSize = require('../utils/getFolderSize');
 const getAssetSize = require('../utils/getAssetSize');
 const filesize = require('filesize');
@@ -16,11 +17,12 @@ module.exports = function(screen) {
 
   const _root = process.argv[2] || ".";
   const root = path.resolve(_root);
-  const titles = [
-    'JS',
-    'CSS',
-    'Images',
-    'JSON'
+
+  const assetTypes = [
+    { name: 'JS', globs: ['**/*.js'] },
+    { name: 'CSS', globs: ['**/*.css'] },
+    { name: 'Images', globs: ['**/*.png','**/*.jpg','**/*.svg'] },
+    { name: 'JSON', globs: ['**/*.json'] },
   ];
 
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -35,39 +37,30 @@ module.exports = function(screen) {
   });
 
 
-  const table =  grid.set(0, 0, 6, 12, contrib.table, 
+  const assetTypeList = grid.set(0,0,6,2, blessed.list, {
+    label: 'Asset Type',
+    keys: true,
+    vi: true,
+    style: { fg: 'yellow', selected: { bg: 'green', fg: 'black' } }
+  });
+  assetTypeList.setItems(assetTypes.map(a => a.name));
+
+  const table =  grid.set(0, 2, 6, 10, contrib.table, 
     { keys: true
       ,  vi: true
       , fg: 'green'
       , label: 'dist/assets/'
       , columnWidth: [80, 10, 10],
-    search:  function(callback) {
-      searchPrompt.input('Search Component:', '', function(err, value) {
-        if (err) return;
-        return callback(null, value);
-      });
-    }
+      search:  function(callback) {
+        searchPrompt.input('Search Component:', '', function(err, value) {
+          if (err) return;
+          return callback(null, value);
+        });
+      }
     })
 
   const assetsFolder = `${root}/dist/assets`;
   let data = [[]];
-
-  if(fs.existsSync(assetsFolder)) {
-    data = walkSync(assetsFolder, {
-      directories: false,
-      includeBasePath: true,
-      globs: ['**/*.js','**/*.css','**/*.png','**/*.jpg','**/*.svg','**/*.json']
-    }).map(f => {
-      let contentsBuffer = fs.readFileSync(f);
-
-      const gzipSize = zlib.gzipSync(contentsBuffer).length;
-
-      return [f.replace(`${assetsFolder}/`,''), filesize(contentsBuffer.length),filesize(gzipSize)];
-    });
-  }
-
-  //set default table
-  table.setData({headers: ['Name','File Size','gzip'], data})
 
   const barChart = grid.set(6,0,6,6, contrib.bar, { 
     label: 'Build Assets: (dist/assets) File Size (KB)'
@@ -131,15 +124,50 @@ module.exports = function(screen) {
 
     const kbSizes = [jsSize, cssSize, imgSize, jsonSize].map(s => Math.round(s/1024));
 
-    barChart.setData({ titles, data: kbSizes});
+    barChart.setData({ titles: assetTypes.map(a => a.name), data: kbSizes});
     donutChart.setData(percent);
+
+
+    assetTypeList.on('select', function(node) {
+      const {content } = node;
+
+      data = walkSync(assetsFolder, {
+        directories: false,
+        includeBasePath: true,
+        globs: assetTypes.find(a => a.name === content).globs
+      }).map(f => {
+        let contentsBuffer = fs.readFileSync(f);
+
+        const gzipSize = zlib.gzipSync(contentsBuffer).length;
+
+        return [f.replace(`${assetsFolder}/`,''), contentsBuffer.length,gzipSize];
+      });
+
+
+      const fileSizeSort = R.sortWith([
+        R.descend(R.prop(2))
+      ]);
+
+      data = fileSizeSort(data).map(d => {
+        const [ name, length, gzip] = d;
+        return [name, filesize(length),filesize(gzip)];
+      });
+
+
+      //set default table
+      table.setData({headers: ['Name','File Size','gzip'], data})
+      screen.render();
+    });
+
+
     screen.append(prompt);
     screen.append(searchPrompt);
+    assetTypeList.focus();
     screen.render();
   } else {
     const message = `Looks like you didn't build your Ember project yet.
     Please run 'ember build' and check again.
-    Press any key to dismiss this message.`;
+      Press any key to dismiss this message.`;
     prompt.display(message, 0, function(err, value) {
       if (err) return;
       //return callback(null, value);
@@ -147,8 +175,15 @@ module.exports = function(screen) {
     });
   }
 
-  table.focus();
+  assetTypeList.focus();
 
+  screen.key(['tab'], function(ch, key) {
+    if(screen.focused === assetTypeList)
+      table.focus();
+    else
+      assetTypeList.focus();
+  });
 
+  screen.render()
 }
 

@@ -4,11 +4,11 @@ const fs = require('fs');
 
 module.exports = function(file) {
 
-  const regex = /import [a-zA-Z- {},]* from '\w+\/mixins\/([a-zA-Z-]*)';/
+  const regex = /\w+: hasMany\('([a-zA-Z-]*)'/
 
   return new Promise(resolve => {
     if(fs.existsSync(file)) {
-      exec(`cat ${file} | grep  "mixins/"`).then(data => {
+      exec(`cat ${file} | grep "hasMany("`).then(data => {
         let names = [];
         data.stdout.split('\n').forEach(line => {
           const match = regex.exec(line);
@@ -16,13 +16,11 @@ module.exports = function(file) {
         });
         resolve(names);
       }).catch(() => {
-
-        // log erro
+        // log error
         resolve([]);
       });
     } else {
       resolve([]);
     }
   });
-
 };
