@@ -9,11 +9,11 @@ const R = require('ramda');
 const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const semver = require('semver');
 const voca = require('voca');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
+const checkOctane = require('../utils/isOctane');
 
 module.exports = function(screen) {
 
@@ -22,9 +22,7 @@ module.exports = function(screen) {
   const _root = process.argv[2] || ".";
   const root = path.resolve(_root);
 
-  const packageManifest = JSON.parse(fs.readFileSync(`${root}/package.json`, 'utf-8'));
-  const emberCli = packageManifest.devDependencies['ember-cli'];
-  const isOctane = semver.gte(semver.coerce(emberCli), semver.valid('3.15.0'));
+  const isOctane = checkOctane();
 
   const prompt = blessed.prompt({
     parent: screen,
@@ -42,8 +40,8 @@ module.exports = function(screen) {
     style: { fg: 'yellow', selected: { bg: 'blue' } },
     search:  function(callback) {
       prompt.input('Search Component:', '', function(err, value) {
-        if (err) return;
-        return callback(null, value);
+	if (err) return;
+	return callback(null, value);
       });
     }
   });
@@ -52,7 +50,7 @@ module.exports = function(screen) {
   let _items = walkSync(folder, { 
     directories: false,
     includeBasePath: true,
-    globs: ['**/*/component.js'],
+    globs: ['**/*/component.js', '**/*/component.ts'],
     ignore: ['.gitkeep', 'template.hbs', 'style.scss']
   })
 
@@ -60,17 +58,24 @@ module.exports = function(screen) {
 
   if(!pods) { // No pods style
 
-_items = walkSync(folder, { 
-    directories: false,
-    includeBasePath: true,
-    globs: ['**/*.js'],
-    ignore: ['.gitkeep']
-  })
+    _items = walkSync(folder, { 
+      directories: false,
+      includeBasePath: true,
+      globs: ['**/*.js','**/*.ts'],
+      ignore: ['.gitkeep']
+    })
   }
+
+  let isTypeScriptProject = false;
 
   const items = _items.map(f => {
     let s =  f.replace(`${root}/app/components/`,'');
-    s = pods ? s.replace('/component.js','') : s.replace('.js','');
+    isTypeScriptProject = s.includes('.ts');
+    if(isTypeScriptProject) {
+      s = pods ? s.replace('/component.ts','') : s.replace('.ts','');
+    } else {
+      s = pods ? s.replace('/component.js','') : s.replace('.js','');
+    }
     return s;
   });
 
@@ -110,8 +115,10 @@ _items = walkSync(folder, {
   leftCol.on('select', function(node) {
     //console.log(node);
     const { content } = node;
-    const js = pods ? `${root}/app/components/${content}/component.js` : `${root}/app/components/${content}.js`;
-    const hbs = pods ? `${root}/app/components/${content}/template.hbs` : `${root}/app/templates/components/${content}.hbs`;
+    const ext = isTypeScriptProject ? '.ts' : '.js';
+    const js = isOctane 
+      ? `${root}/app/components/${content}${ext}` : pods ? `${root}/app/components/${content}/component${ext}` : `${root}/app/components/${content}${ext}`;
+    const hbs = isOctane ? `${root}/app/templates/components/${content}.hbs` : pods ? `${root}/app/components/${content}/template.hbs` : `${root}/app/templates/components/${content}.hbs`;
     const jsStat = fs.existsSync(js) && fs.readFileSync(js,'utf-8');
     const hbsStat = fs.existsSync(hbs) && fs.readFileSync(hbs, 'utf-8');
     if(jsStat) {
@@ -135,24 +142,24 @@ _items = walkSync(folder, {
 
     exec(findCommand).then(data => {
       let fileNames = data.stdout.split('\n').map(line => {
-        return line.replace(root, '');
+	return line.replace(root, '');
       });
 
       fileNames = fileNames.filter(Boolean); // remove empty entries
 
       const componentList = fileNames
-        .filter(f =>  { 
-          return pods ? f.includes('app/components') : f.includes('app/templates/components');
-        })
-        .map(f => { 
-          return pods ?
-          f.replace('/app/components/','').replace('/template.hbs','')
-            : f.replace('/app/templates/components/','')
-        });
+	.filter(f =>  { 
+	  return pods ? f.includes('app/components') : f.includes('app/templates/components');
+	})
+	.map(f => { 
+	  return pods ?
+	    f.replace('/app/components/','').replace('/template.hbs','')
+	    : f.replace('/app/templates/components/','')
+	});
 
       const routeList = fileNames
-        .filter(f => !f.includes('app/components'))
-        .map(f => f.replace('/app/templates/',''));
+	.filter(f => !f.includes('app/components'))
+	.map(f => f.replace('/app/templates/',''));
 
       usedInComponents.setItems(componentList);
       usedInComponents.setLabel(`Used in ${componentList.length} components`);
@@ -160,21 +167,21 @@ _items = walkSync(folder, {
       usedInRoutes.setLabel(`Used in ${routeList.length} routes`);
 
       getUtilDeps(js).then(data => {
-        utils.setItems(data);
-        utils.setLabel(`Utils (${data.length})`);
-        screen.render();
+	utils.setItems(data);
+	utils.setLabel(`Utils (${data.length})`);
+	screen.render();
       });
 
       getMixinDeps(js).then(data => {
-        mixins.setItems(data);
-        mixins.setLabel(`Mixins (${data.length})`);
-        screen.render();
+	mixins.setItems(data);
+	mixins.setLabel(`Mixins (${data.length})`);
+	screen.render();
       });
 
       getServiceDeps(js).then(data => {
-        services.setItems(data);
-        services.setLabel(`Services (${data.length})`);
-        screen.render();
+	services.setItems(data);
+	services.setLabel(`Services (${data.length})`);
+	screen.render();
       });
 
     }).catch(err => {

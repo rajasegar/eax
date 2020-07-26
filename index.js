@@ -15,6 +15,9 @@ const utils = require('./src/pages/utils');
 const services = require('./src/pages/services');
 const buildPage = require('./src/pages/build-assets');
 const helpPage = require('./src/pages/help');
+const log = require('./src/utils/log');
+
+log('Starting eax');
 
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
   return process.exit(0);
