@@ -43,6 +43,7 @@ eax ~/Users/user/code/my-ember-app
 ![components](screenshots/components.png)
 
 ## Help
+List of Keyboard navigation shortcuts:
 ```
     ['Next Page', 'Right Arrow'],
     ['Prev Page', 'Left Arrow'],
@@ -51,7 +52,18 @@ eax ~/Users/user/code/my-ember-app
     ['Select', 'Enter / l'],
     ['Quit', 'q / Esc / Ctrl-c'],
     ['Help', '?'],
-    ['Go to Home', 'h'],
+    ['Go to Home', '0'],
+    ['Go to Build Stats', 'b'],
+    ['Go to Components', 'c'],
+    ['Go to Adapters', 'a'],
+    ['Go to Controllers', 'o'],
+    ['Go to File Sizes', 'f'],
+    ['Go to Helpers', 'h'],
+    ['Go to Mixins', 'x'],
+    ['Go to Models', 'm'],
+    ['Go to Routes', 'r'],
+    ['Go to Services', 's'],
+    ['Go to Utils', 'u'],
     ['Search', '/'],
     ['Go to the beginning of any list', 'gg'],
     ['Go to the end of any list', 'G']
