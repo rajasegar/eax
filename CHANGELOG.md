@@ -1,3 +1,10 @@
+## [0.12.2](https://github.com/rajasegar/eax/compare/v0.12.1...v0.12.2) (2020-07-27)
+
+
+### Bug Fixes
+
+* issue with service dependency grep ([a1f0b66](https://github.com/rajasegar/eax/commit/a1f0b6646d41992f5ccf39955e990d6152a1157f))
+
 ## [0.12.1](https://github.com/rajasegar/eax/compare/v0.12.0...v0.12.1) (2020-07-26)
 
 
