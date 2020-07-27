@@ -1,3 +1,10 @@
+## [0.12.3](https://github.com/rajasegar/eax/compare/v0.12.2...v0.12.3) (2020-07-27)
+
+
+### Bug Fixes
+
+* help shortcut crash issue in lists ([ee2a817](https://github.com/rajasegar/eax/commit/ee2a817f436f83b30da623cbe7168187d219622e)), closes [#7](https://github.com/rajasegar/eax/issues/7)
+
 ## [0.12.2](https://github.com/rajasegar/eax/compare/v0.12.1...v0.12.2) (2020-07-27)
 
 
