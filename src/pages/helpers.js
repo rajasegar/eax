@@ -9,6 +9,9 @@ const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const log = require('../utils/log');
+const getUtilDeps = require('../utils/getUtilDeps');
+const getMixinDeps = require('../utils/getMixinDeps');
+const getServiceDeps = require('../utils/getServiceDeps');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -57,25 +60,45 @@ module.exports = function (screen) {
     label: 'File info:',
   });
 
-  const usedIn = grid.set(4, 3, 8, 9, blessed.list, {
+  const usedIn = grid.set(4, 3, 8, 4, blessed.list, {
     label: 'Used in:',
     keys: true,
     vi: true,
     style: { fg: 'yellow', selected: { bg: 'blue' } },
   });
 
+  const fileContent = grid.set(4, 7, 8, 5, blessed.box, {
+    label: 'Contents',
+  });
+
+  const mixins = grid.set(2, 5, 2, 2, blessed.list, {
+    label: 'Mixins',
+  });
+
+  const services = grid.set(2, 7, 2, 2, blessed.list, {
+    label: 'Services',
+  });
+
+  const utils = grid.set(2, 3, 2, 2, blessed.list, {
+    label: 'Utils',
+  });
+
   leftCol.on('select', function (node) {
     //console.log(node);
     const { content } = node;
     const js = `${root}/${namespace}/${content}`;
-    const jsStat = fs.existsSync(js) && fs.statSync(js);
+    const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
     if (jsStat) {
-      component.setContent(`Size: ${filesize(jsStat.size)}\nFull Path: ${js}
-      `);
+      component.setContent(
+        `Size: ${filesize(jsStat.length)}\nFull Path: ${js}\nLOC: ${
+          jsStat.length - 1
+        }`
+      );
+      fileContent.setContent(jsStat);
     }
     // Find helper name in all hbs files
     const helperName = content.replace('.js', '');
-    exec(`find ${root}/app -name "*.hbs" | xargs grep -l "{{${helperName}"`)
+    exec(`find ${root}/app -name "*.hbs" | xargs grep -l "[{{( ]${helperName}"`)
       .then((data) => {
         let fileNames = data.stdout.split('\n').map((line) => {
           return line.replace(root, '');
@@ -87,6 +110,7 @@ module.exports = function (screen) {
 
         usedIn.setItems(fileList);
         usedIn.setLabel(`Used in ${fileList.length} files`);
+
         screen.render();
       })
       .catch((err) => {
@@ -95,6 +119,24 @@ module.exports = function (screen) {
         usedIn.setLabel(`Used in :`);
         screen.render();
       });
+
+    getUtilDeps(js).then((data) => {
+      utils.setItems(data);
+      utils.setLabel(`Utils (${data.length})`);
+      screen.render();
+    });
+
+    getMixinDeps(js).then((data) => {
+      mixins.setItems(data);
+      mixins.setLabel(`Mixins (${data.length})`);
+      screen.render();
+    });
+
+    getServiceDeps(js).then((data) => {
+      services.setItems(data);
+      services.setLabel(`Services (${data.length})`);
+      screen.render();
+    });
 
     screen.render();
   });
