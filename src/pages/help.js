@@ -1,6 +1,8 @@
 'use strict';
 
 const contrib = require('blessed-contrib');
+//const pages = require('../utils/pages');
+//const capitalize = require('../utils/capitalize');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -20,7 +22,10 @@ module.exports = function (screen) {
     ['Down', 'Down Arrow / j'],
     ['Select', 'Enter / l'],
     ['Quit', 'q / Esc / Ctrl-c'],
-    ['Help', '?'],
+    ['Search', '/'],
+    ['Go to the beginning of any list', 'gg'],
+    ['Go to the end of any list', 'G'],
+    ['Help', '? / !'],
     ['Go to Home', '0'],
     ['Go to Build Stats', 'b'],
     ['Go to Components', 'c'],
@@ -33,10 +38,12 @@ module.exports = function (screen) {
     ['Go to Routes', 'r'],
     ['Go to Services', 's'],
     ['Go to Utils', 'u'],
-    ['Search', '/'],
-    ['Go to the beginning of any list', 'gg'],
-    ['Go to the end of any list', 'G'],
   ];
+
+  //pages.forEach((p) => {
+  //const helpText = `Go to ${capitalize(p.name)}`;
+  //helpKeys.push([helpText, p.keyCodes.split().join(' / ')]);
+  //});
 
   helpWidget.setData({ headers: ['Function', 'Key'], data: helpKeys });
   helpWidget.focus();
