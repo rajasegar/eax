@@ -1,8 +1,8 @@
 'use strict';
 
 const contrib = require('blessed-contrib');
-//const pages = require('../utils/pages');
-//const capitalize = require('../utils/capitalize');
+const pageList = require('../utils/pages');
+const capitalize = require('../utils/capitalize');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -26,24 +26,13 @@ module.exports = function (screen) {
     ['Go to the beginning of any list', 'gg'],
     ['Go to the end of any list', 'G'],
     ['Help', '? / !'],
-    ['Go to Home', '0'],
-    ['Go to Build Stats', 'b'],
-    ['Go to Components', 'c'],
-    ['Go to Adapters', 'a'],
-    ['Go to Controllers', 'o'],
-    ['Go to File Sizes', 'f'],
-    ['Go to Helpers', 'h'],
-    ['Go to Mixins', 'x'],
-    ['Go to Models', 'm'],
-    ['Go to Routes', 'r'],
-    ['Go to Services', 's'],
-    ['Go to Utils', 'u'],
   ];
 
-  //pages.forEach((p) => {
-  //const helpText = `Go to ${capitalize(p.name)}`;
-  //helpKeys.push([helpText, p.keyCodes.split().join(' / ')]);
-  //});
+  // Generating keycodes from page objects
+  pageList.forEach((p) => {
+    const helpText = `Go to ${capitalize(p.name)}`;
+    helpKeys.push([helpText, p.keyCodes.join(' / ')]);
+  });
 
   helpWidget.setData({ headers: ['Function', 'Key'], data: helpKeys });
   helpWidget.focus();

@@ -10,7 +10,6 @@ const helpers = require('../pages/helpers');
 const utils = require('../pages/utils');
 const services = require('../pages/services');
 const buildPage = require('../pages/build-assets');
-const helpPage = require('../pages/help');
 
 const pages = [
   { name: 'home', page: homePage, keyCodes: ['0'] },
@@ -37,7 +36,6 @@ const pages = [
     page: buildPage,
     keyCodes: ['b'],
   },
-  { name: 'help', page: helpPage, keyCodes: ['?', '!'] },
 ];
 
 module.exports = pages;
