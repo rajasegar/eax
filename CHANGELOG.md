@@ -1,3 +1,10 @@
+# [0.15.0](https://github.com/rajasegar/eax/compare/v0.14.0...v0.15.0) (2020-07-28)
+
+
+### Features
+
+* jump to components page from file sizes and select ([1900dcf](https://github.com/rajasegar/eax/commit/1900dcf51cf675015ce44a4a2039c37eefa56b0d))
+
 # [0.14.0](https://github.com/rajasegar/eax/compare/v0.13.0...v0.14.0) (2020-07-28)
 
 
