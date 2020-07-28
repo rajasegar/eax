@@ -4,8 +4,6 @@ const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const walkSync = require('walk-sync');
 const path = require('path');
-const fs = require('fs');
-const filesize = require('filesize');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const voca = require('voca');
@@ -14,6 +12,8 @@ const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
 const checkOctane = require('../utils/isOctane');
 const log = require('../utils/log');
+const getFileInfo = require('../utils/getFileInfo');
+const showFileInfo = require('../utils/showFileInfo');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -57,7 +57,6 @@ module.exports = function (screen) {
 
   if (!pods) {
     // No pods style
-
     _items = walkSync(folder, {
       directories: false,
       includeBasePath: true,
@@ -112,30 +111,39 @@ module.exports = function (screen) {
     //console.log(node);
     const { content } = node;
     const ext = isTypeScriptProject ? '.ts' : '.js';
-    const js = isOctane
-      ? `${root}/app/components/${content}${ext}`
-      : pods
-      ? `${root}/app/components/${content}/component${ext}`
-      : `${root}/app/components/${content}${ext}`;
-    const hbs = isOctane
-      ? `${root}/app/templates/components/${content}.hbs`
-      : pods
-      ? `${root}/app/components/${content}/template.hbs`
-      : `${root}/app/templates/components/${content}.hbs`;
-    const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
-    const hbsStat = fs.existsSync(hbs) && fs.readFileSync(hbs, 'utf-8');
-    if (jsStat) {
-      let _content = `Full Path: ${js}`;
-      _content += `\nSize: ${filesize(jsStat.length)}`;
-      _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
-      component.setContent(_content);
+    let js;
+    if (isOctane) {
+      if (pods) {
+        js = `${root}/app/components/${content}/component${ext}`;
+      } else {
+        js = `${root}/app/components/${content}${ext}`;
+      }
+    } else {
+      if (pods) {
+        js = `${root}/app/components/${content}/component${ext}`;
+      } else {
+        js = `${root}/app/components/${content}${ext}`;
+      }
     }
-    if (hbsStat) {
-      let _content = `Full Path: ${hbs}\n`;
-      _content += `Size: ${filesize(hbsStat.length)}`;
-      _content += `\nLOC: ${hbsStat.split('\n').length - 1}`;
-      template.setContent(_content);
+
+    let hbs;
+
+    if (isOctane) {
+      if (pods) {
+        hbs = `${root}/app/components/${content}/template.hbs`;
+      } else {
+        hbs = `${root}/app/components/${content}.hbs`;
+      }
+    } else {
+      if (pods) {
+        hbs = `${root}/app/components/${content}/template.hbs`;
+      } else {
+        hbs = `${root}/app/templates/components/${content}.hbs`;
+      }
     }
+
+    component.setContent(showFileInfo(getFileInfo(js)));
+    template.setContent(showFileInfo(getFileInfo(hbs)));
 
     // Find component name in all template files
     const componentName = isOctane
@@ -143,7 +151,25 @@ module.exports = function (screen) {
       : content;
     const findCommand = isOctane
       ? `find ${root}/app -name "*.hbs" | xargs grep -l "<${componentName}"`
-      : `find ${root}/app -name "*.hbs" | xargs grep -l "[{{{#]${componentName}"`;
+      : `find ${root}/app -name "*.hbs" | xargs grep -l "[{{{# ]${componentName}"`;
+
+    getUtilDeps(js).then((data) => {
+      utils.setItems(data);
+      utils.setLabel(`Utils (${data.length})`);
+      screen.render();
+    });
+
+    getMixinDeps(js).then((data) => {
+      mixins.setItems(data);
+      mixins.setLabel(`Mixins (${data.length})`);
+      screen.render();
+    });
+
+    getServiceDeps(js).then((data) => {
+      services.setItems(data);
+      services.setLabel(`Services (${data.length})`);
+      screen.render();
+    });
 
     exec(findCommand)
       .then((data) => {
@@ -173,24 +199,6 @@ module.exports = function (screen) {
         usedInComponents.setLabel(`Used in ${componentList.length} components`);
         usedInRoutes.setItems(routeList);
         usedInRoutes.setLabel(`Used in ${routeList.length} routes`);
-
-        getUtilDeps(js).then((data) => {
-          utils.setItems(data);
-          utils.setLabel(`Utils (${data.length})`);
-          screen.render();
-        });
-
-        getMixinDeps(js).then((data) => {
-          mixins.setItems(data);
-          mixins.setLabel(`Mixins (${data.length})`);
-          screen.render();
-        });
-
-        getServiceDeps(js).then((data) => {
-          services.setItems(data);
-          services.setLabel(`Services (${data.length})`);
-          screen.render();
-        });
       })
       .catch((err) => {
         log(err);

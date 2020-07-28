@@ -4,11 +4,11 @@ const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const walkSync = require('walk-sync');
 const path = require('path');
-const fs = require('fs');
-const filesize = require('filesize');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
+const getFileInfo = require('../utils/getFileInfo');
+const showFileInfo = require('../utils/showFileInfo');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -86,20 +86,8 @@ module.exports = function (screen) {
     const js = `${root}/app/routes/${content}`;
     const templateName = content.replace('.js', '.hbs');
     const hbs = `${root}/app/templates/${templateName}`;
-    const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
-    const hbsStat = fs.existsSync(hbs) && fs.readFileSync(hbs, 'utf-8');
-    if (jsStat) {
-      let _content = `Full path: ${js}`;
-      _content += `\nSize: ${filesize(jsStat.length)}`;
-      _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
-      component.setContent(_content);
-    }
-    if (hbsStat) {
-      let _content = `Full path: ${hbs}`;
-      _content += `\nSize: ${filesize(hbsStat.length)}`;
-      _content += `\nLOC: ${hbsStat.split('\n').length - 1}`;
-      template.setContent(_content);
-    }
+    component.setContent(showFileInfo(getFileInfo(js)));
+    template.setContent(showFileInfo(getFileInfo(hbs)));
 
     getUtilDeps(js).then((data) => {
       utils.setItems(data);

@@ -4,12 +4,12 @@ const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const walkSync = require('walk-sync');
 const path = require('path');
-const fs = require('fs');
-const filesize = require('filesize');
 const getHasMany = require('../utils/getHasMany');
 const getBelongsTo = require('../utils/getBelongsTo');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
+const getFileInfo = require('../utils/getFileInfo');
+const showFileInfo = require('../utils/showFileInfo');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -73,17 +73,17 @@ module.exports = function (screen) {
     label: 'Mixins',
   });
 
+  const fileContent = grid.set(4, 3, 8, 9, blessed.box, {
+    label: 'Contents',
+  });
+
   leftCol.on('select', function (node) {
     //console.log(node);
     const { content } = node;
     const js = `${root}/${namespace}/${content}`;
-    const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
-    if (jsStat) {
-      let _content = `Full path: ${js}`;
-      _content += `\nSize: ${filesize(jsStat.length)}`;
-      _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
-      component.setContent(_content);
-    }
+    const _fileInfo = getFileInfo(js);
+    component.setContent(showFileInfo(_fileInfo));
+    fileContent.setContent(_fileInfo.content);
 
     getUtilDeps(js).then((data) => {
       utils.setItems(data);

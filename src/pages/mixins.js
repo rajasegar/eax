@@ -2,7 +2,6 @@
 
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
-const walkSync = require('walk-sync');
 const path = require('path');
 const fs = require('fs');
 const util = require('util');
@@ -11,7 +10,10 @@ const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
 const getFileInfo = require('../utils/getFileInfo');
+const showFileInfo = require('../utils/showFileInfo');
 const log = require('../utils/log');
+const highlight = require('../utils/highlight');
+const sortFilesBySize = require('../utils/sortFilesBySize');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -44,15 +46,7 @@ module.exports = function (screen) {
 
   const folder = path.resolve(`${root}/${namespace}`);
   if (fs.existsSync(folder)) {
-    let items = walkSync(folder, {
-      directories: false,
-      includeBasePath: true,
-      globs: ['**/*.js'],
-      ignore: ['.gitkeep'],
-    }).map((f) => {
-      let s = f.replace(`${root}/${namespace}/`, '');
-      return s;
-    });
+    let items = sortFilesBySize(namespace);
 
     leftCol.setItems(items);
     leftCol.setLabel(`Mixins: (${items.length})`);
@@ -61,7 +55,7 @@ module.exports = function (screen) {
       label: 'File info:',
     });
 
-    const usedIn = grid.set(4, 3, 8, 9, blessed.list, {
+    const usedIn = grid.set(4, 3, 8, 4, blessed.list, {
       label: 'Used in:',
       keys: true,
       vi: true,
@@ -80,15 +74,19 @@ module.exports = function (screen) {
       label: 'Utils',
     });
 
+    const fileContent = grid.set(4, 7, 8, 5, blessed.box, {
+      label: 'Contents',
+    });
+
     leftCol.on('select', function (node) {
       //console.log(node);
       const { content } = node;
       const js = `${root}/${namespace}/${content}`;
-      //const jsStat = fs.existsSync(js) && fs.statSync(js);
-      //if(jsStat) {
-      //component.setContent(`Size: ${filesize(jsStat.size)}`);
-      //}
-      component.setContent(getFileInfo(js));
+      const _fileInfo = getFileInfo(js);
+      component.setContent(showFileInfo(_fileInfo));
+      const highlightedCode = highlight(_fileInfo.content, 'javascript');
+
+      fileContent.setContent(highlightedCode);
 
       // Find mixin name in all js files
       const mixinName = content.replace('.js', '');

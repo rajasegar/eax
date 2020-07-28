@@ -12,6 +12,7 @@ const log = require('../utils/log');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
+const highlight = require('../utils/highlight');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -94,7 +95,7 @@ module.exports = function (screen) {
           jsStat.length - 1
         }`
       );
-      fileContent.setContent(jsStat);
+      fileContent.setContent(highlight(jsStat));
     }
     // Find helper name in all hbs files
     const helperName = content.replace('.js', '');

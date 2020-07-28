@@ -2,13 +2,14 @@
 
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
-const walkSync = require('walk-sync');
 const path = require('path');
 const fs = require('fs');
 const filesize = require('filesize');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
+const sortFilesBySize = require('../utils/sortFilesBySize');
+const highlight = require('../utils/highlight');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -56,55 +57,48 @@ module.exports = function (screen) {
   });
 
   const folder = path.resolve(`${root}/${namespace}`);
-  let items = walkSync(folder, {
-    directories: false,
-    includeBasePath: true,
-    globs: ['**/*.js'],
-    ignore: ['.gitkeep'],
-  }).map((f) => {
-    let s = f.replace(`${root}/${namespace}/`, '');
-    return s;
-  });
+  if (fs.existsSync(folder)) {
+    let items = sortFilesBySize(namespace);
+    leftCol.setItems(items);
+    leftCol.setLabel(`Adapters: (${items.length})`);
 
-  leftCol.setItems(items);
-  leftCol.setLabel(`Adapters: (${items.length})`);
-
-  const component = grid.set(0, 3, 2, 9, blessed.box, {
-    label: 'File info:',
-  });
-
-  leftCol.on('select', function (node) {
-    //console.log(node);
-    const { content } = node;
-    const js = `${root}/${namespace}/${content}`;
-    const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
-    if (jsStat) {
-      let _content = `Full path: ${js}`;
-      _content += `\nSize: ${filesize(jsStat.length)}`;
-      _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
-      component.setContent(_content);
-      fileContent.setContent(jsStat);
-    }
-
-    getUtilDeps(js).then((data) => {
-      utils.setItems(data);
-      utils.setLabel(`Utils (${data.length})`);
-      screen.render();
+    const component = grid.set(0, 3, 2, 9, blessed.box, {
+      label: 'File info:',
     });
 
-    getMixinDeps(js).then((data) => {
-      mixins.setItems(data);
-      mixins.setLabel(`Mixins (${data.length})`);
-      screen.render();
-    });
+    leftCol.on('select', function (node) {
+      //console.log(node);
+      const { content } = node;
+      const js = `${root}/${namespace}/${content}`;
+      const jsStat = fs.existsSync(js) && fs.readFileSync(js, 'utf-8');
+      if (jsStat) {
+        let _content = `Full path: ${js}`;
+        _content += `\nSize: ${filesize(jsStat.length)}`;
+        _content += `\nLOC: ${jsStat.split('\n').length - 1}`;
+        component.setContent(_content);
+        fileContent.setContent(highlight(jsStat));
+      }
 
-    getServiceDeps(js).then((data) => {
-      services.setItems(data);
-      services.setLabel(`Services (${data.length})`);
+      getUtilDeps(js).then((data) => {
+        utils.setItems(data);
+        utils.setLabel(`Utils (${data.length})`);
+        screen.render();
+      });
+
+      getMixinDeps(js).then((data) => {
+        mixins.setItems(data);
+        mixins.setLabel(`Mixins (${data.length})`);
+        screen.render();
+      });
+
+      getServiceDeps(js).then((data) => {
+        services.setItems(data);
+        services.setLabel(`Services (${data.length})`);
+        screen.render();
+      });
       screen.render();
     });
-    screen.render();
-  });
+  }
 
   leftCol.focus();
 

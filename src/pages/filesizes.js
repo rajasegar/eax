@@ -55,7 +55,6 @@ module.exports = function (screen) {
   leftCol.on('select', function (node) {
     const { content } = node;
     const name = content.slice(0, 1).toLowerCase() + content.slice(1);
-    right.setLabel(`${content}: app/${name}`);
     const folder = path.resolve(`${root}/app/${name}`);
     if (fs.existsSync(folder)) {
       let items = walkSync(folder, {
@@ -64,6 +63,7 @@ module.exports = function (screen) {
         ignore: ['.*'],
       });
 
+      right.setLabel(`${content}: app/${name} (${items.length})`);
       items = items.map((f) => {
         const stat = fs.readFileSync(f, 'utf-8');
         return [f.replace(root, ''), stat.length, stat.split('\n').length - 1];
