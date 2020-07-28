@@ -4,12 +4,12 @@ const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const fs = require('fs');
 const path = require('path');
+const walkSync = require('walk-sync');
 const R = require('ramda');
 const getFolderSize = require('../utils/getFolderSize');
 const getAssetSize = require('../utils/getAssetSize');
 const filesize = require('filesize');
-const walkSync = require('walk-sync');
-const zlib = require('zlib');
+const CompressionStats = require('compression-stats-cli');
 
 module.exports = function (screen) {
   const _root = process.argv[2] || '.';
@@ -24,13 +24,14 @@ module.exports = function (screen) {
 
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
-  const searchPrompt = blessed.prompt({
+  const loadingWidget = blessed.loading({
     parent: screen,
     top: 'center',
     left: 'center',
     height: 'shrink',
     width: 'shrink',
     border: 'line',
+    hidden: true,
   });
 
   const assetTypeList = grid.set(0, 0, 6, 2, blessed.list, {
@@ -46,13 +47,7 @@ module.exports = function (screen) {
     vi: true,
     fg: 'green',
     label: 'dist/assets/',
-    columnWidth: [80, 10, 10],
-    search: function (callback) {
-      searchPrompt.input('Search Component:', '', function (err, value) {
-        if (err) return;
-        return callback(null, value);
-      });
-    },
+    columnWidth: [50, 10, 10, 10],
   });
 
   const assetsFolder = `${root}/dist/assets`;
@@ -146,38 +141,80 @@ module.exports = function (screen) {
 
     assetTypeList.on('select', function (node) {
       const { content } = node;
+      const _include = assetTypes
+        .find((a) => a.name === content)
+        .globs.map((g) => g.split('.')[1]);
 
-      data = walkSync(assetsFolder, {
-        directories: false,
-        includeBasePath: true,
-        globs: assetTypes.find((a) => a.name === content).globs,
-      }).map((f) => {
-        let contentsBuffer = fs.readFileSync(f);
+      const requireCompression = ['JS', 'CSS', 'SVG'].includes(content);
 
-        const gzipSize = zlib.gzipSync(contentsBuffer).length;
+      if (requireCompression) {
+        const cs = new CompressionStats({
+          inputPath: `${root}/dist/assets`,
+          include: _include,
+        });
 
-        return [
-          f.replace(`${assetsFolder}/`, ''),
-          contentsBuffer.length,
-          gzipSize,
-        ];
-      });
+        // show loading
+        loadingWidget.load('Calculating sizes, please wait...');
 
-      const fileSizeSort = R.sortWith([R.descend(R.prop(2))]);
+        cs.getFileSizesObject()
+          .then((files) => {
+            if (files.length !== 0) {
+              data = files.map((f) => {
+                return [f.name, f.size, f.gzipSize, f.brotliSize];
+              });
 
-      data = fileSizeSort(data).map((d) => {
-        const [name, length, gzip] = d;
-        return [name, filesize(length), filesize(gzip)];
-      });
+              const fileSizeSort = R.sortWith([R.descend(R.prop(2))]);
 
-      //set default table
-      table.setData({ headers: ['Name', 'File Size', 'gzip'], data });
-      screen.render();
+              data = fileSizeSort(data).map((d) => {
+                const [name, length, gzip, brotli] = d;
+                return [
+                  name.replace(`${assetsFolder}/`, ''),
+                  filesize(length),
+                  filesize(gzip),
+                  filesize(brotli),
+                ];
+              });
+
+              //set default table
+              table.setData({
+                headers: ['Name', 'File Size', 'gzip', 'brotli'],
+                data,
+              });
+              loadingWidget.stop();
+              screen.render();
+            }
+          })
+          .catch((err) => {
+            loadingWidget.stop();
+            const message = err;
+            prompt.display(message, 0, function (err1) {
+              if (err1) return;
+              return;
+            });
+          });
+      } else {
+        // Process non compressed assets here
+        const _globs = assetTypes.find((a) => a.name === content).globs;
+
+        data = walkSync(assetsFolder, {
+          globs: _globs,
+          directories: false,
+          includeBasePath: true,
+        }).map((f) => {
+          const buffer = fs.readFileSync(f);
+          return [f.replace(`${assetsFolder}/`, ''), filesize(buffer.length)];
+        });
+
+        //set default table
+        table.setData({
+          headers: ['Name', 'File Size'],
+          data,
+        });
+        screen.render();
+      }
     });
 
-    screen.append(prompt);
-    screen.append(searchPrompt);
-    assetTypeList.focus();
+    table.focus();
     screen.render();
   } else {
     const message = `Looks like you didn't build your Ember project yet.
@@ -190,6 +227,8 @@ module.exports = function (screen) {
     });
   }
 
+  screen.append(prompt);
+  screen.append(loadingWidget);
   assetTypeList.focus();
 
   screen.key(['tab'], function (/*ch, key*/) {

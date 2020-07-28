@@ -2,6 +2,7 @@ dependencies:
   blessed: 0.1.81
   blessed-contrib: 4.8.20
   cli-highlight: 2.1.4
+  compression-stats-cli: 1.2.2
   filesize: 6.1.0
   ramda: 0.27.0
   semver: 7.3.2
@@ -674,6 +675,19 @@ packages:
     dev: true
     resolution:
       integrity: sha512-sq2sWtrqKPkEXAC8tEJA1+BqAH9GbFkGBtUOqrUX57VSfwp8xyktctk+uLoRy5eccTdxzDcVIztlYDpKs3Jv1Q==
+  /compression-stats-cli/1.2.2:
+    dependencies:
+      chalk: 4.1.0
+      filesize: 6.1.0
+      walk-sync: 2.2.0
+      workerpool: 6.0.0
+      yargs: 15.4.1
+    dev: false
+    engines:
+      node: '>= 10.16.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-1tjun/PIXEcWGZaaqQ9A604Tm1zYyroXWMi5Be+Y/WYwHz4TMeAYSTVg86AZHTdIZzSblfshx7vIcEHubmJFeQ==
   /concat-map/0.0.1:
     resolution:
       integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
@@ -3140,6 +3154,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-J1hIEIkUVqQXHI0CJkQa3pDLyus=
+  /workerpool/6.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-fU2OcNA/GVAJLLyKUoHkAgIhKb0JoCpSjLC/G2vYKxUjVmQwGbRVeoPJ1a8U4pnVofz4AQV5Y/NEw8oKqxEBtA==
   /wrap-ansi/6.2.0:
     dependencies:
       ansi-styles: 4.2.1
@@ -3232,6 +3250,7 @@ specifiers:
   blessed: ^0.1.81
   blessed-contrib: ^4.8.20
   cli-highlight: ^2.1.4
+  compression-stats-cli: ^1.2.2
   eslint: ^7.5.0
   eslint-config-prettier: ^6.11.0
   eslint-plugin-node: ^11.1.0

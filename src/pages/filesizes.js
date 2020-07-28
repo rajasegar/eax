@@ -45,6 +45,7 @@ module.exports = function (screen) {
     label: 'Items',
     keys: true,
     vi: true,
+    interactive: true,
     style: { fg: 'yellow' },
     columnWidth: [80, 10, 10],
   });
@@ -82,6 +83,12 @@ module.exports = function (screen) {
       right.setData({ headers: ['Name', 'Size', 'LOC'], data: [[]] });
       screen.render();
     }
+  });
+
+  right.on('select', function (node) {
+    const { content } = node;
+    debugger;
+    console.log(content);
   });
 
   leftCol.focus();
