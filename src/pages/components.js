@@ -15,7 +15,7 @@ const log = require('../utils/log');
 const getFileInfo = require('../utils/getFileInfo');
 const showFileInfo = require('../utils/showFileInfo');
 
-module.exports = function (screen) {
+module.exports = function (screen, currPage, selected) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
   const _root = process.argv[2] || '.';
@@ -80,6 +80,12 @@ module.exports = function (screen) {
 
   leftCol.setItems(items);
   leftCol.setLabel(`Components: (${items.length})`);
+  if (selected) {
+    selected = selected
+      .replace(`${root}/app/components/`, '')
+      .replace('/component.js', '');
+    leftCol.select(leftCol.getItemIndex(selected));
+  }
 
   const template = grid.set(0, 3, 2, 4, blessed.box, {
     label: 'template.hbs',

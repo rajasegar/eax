@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const R = require('ramda');
 const filesize = require('filesize');
+const componentsPage = require('./components');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -85,16 +86,25 @@ module.exports = function (screen) {
     }
   });
 
-  right.on('select', function (node) {
-    const { content } = node;
-    console.log(content);
+  right.rows.on('select', function (item) {
+    const { content } = item;
+
+    const [name] = content.split(' ');
+    var i = screen.children.length;
+    while (i--) screen.children[i].detach();
+
+    componentsPage(screen, 2, name);
+    screen.render();
   });
 
   leftCol.focus();
 
-  screen.key(['tab'], function (/*ch, key*/) {
-    if (screen.focused === leftCol) right.focus();
-    else leftCol.focus();
+  leftCol.key(['tab'], function (/*ch, key*/) {
+    right.focus();
+  });
+
+  right.rows.key(['tab'], function (/*ch, key*/) {
+    leftCol.focus();
   });
 
   screen.render();
