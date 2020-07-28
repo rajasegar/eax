@@ -1,3 +1,10 @@
+# [0.13.0](https://github.com/rajasegar/eax/compare/v0.12.3...v0.13.0) (2020-07-28)
+
+
+### Features
+
+* syntax highlight for code ([8834582](https://github.com/rajasegar/eax/commit/883458208a6835fd0d895b085abf6a0380e67623))
+
 ## [0.12.3](https://github.com/rajasegar/eax/compare/v0.12.2...v0.12.3) (2020-07-27)
 
 
