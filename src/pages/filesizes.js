@@ -87,7 +87,6 @@ module.exports = function (screen) {
 
   right.on('select', function (node) {
     const { content } = node;
-    debugger;
     console.log(content);
   });
 
