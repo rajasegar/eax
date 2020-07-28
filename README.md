@@ -51,7 +51,7 @@ List of Keyboard navigation shortcuts:
     ['Down', 'Down Arrow / j'],
     ['Select', 'Enter / l'],
     ['Quit', 'q / Esc / Ctrl-c'],
-    ['Help', '?'],
+    ['Help', '?', '!'],
     ['Go to Home', '0'],
     ['Go to Build Stats', 'b'],
     ['Go to Components', 'c'],
@@ -75,10 +75,11 @@ List of Keyboard navigation shortcuts:
 You can press `q`, or `Esc` or `C-c` to quit the program at any time.
 
 ### How can I see the keyboard shortcuts for navigating?
-Press `?` to see the keyboard navigation shortcuts page.
+Press `?` or `!` to see the keyboard navigation shortcuts page. 
+There is an [issue](https://github.com/rajasegar/eax/issues/7) with `?` when you open the help page from a page containing lists, hence in those cases you can use the `!` for help.
 
 ### How can I quickly navigate to home page screen?
-Press `h` to go to the home page.
+Press `0` to go to the home page.
 
 ### How do I navigate between different pages of the cli?
 You can use the arrow keys to navigate between pages, `Left Arrow` to previous screen
@@ -90,4 +91,4 @@ if the search functionality is enabled for that list where you have the focus.
 The search term is fuzzy which means you can search for any part of the name.
 
 ### Does it support vi/vim navigation keys in the lists?
-Yes
+Yes. You can use `j`,`k`,`gg`,`G`,`l` and `/`
