@@ -1,3 +1,10 @@
+# [0.14.0](https://github.com/rajasegar/eax/compare/v0.13.0...v0.14.0) (2020-07-28)
+
+
+### Features
+
+* add brotli sizes for js and css build assets ([8e69145](https://github.com/rajasegar/eax/commit/8e6914517b27d9d78ca2e5bce9c1c8bb86e28071))
+
 # [0.13.0](https://github.com/rajasegar/eax/compare/v0.12.3...v0.13.0) (2020-07-28)
 
 
