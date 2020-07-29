@@ -57,7 +57,12 @@ module.exports = function (screen) {
 
   const projDetails = [];
 
-  projDetails.push(['ember-cli', packageManifest.devDependencies['ember-cli']]);
+  const emberCliVersion =
+    packageManifest.devDependencies['ember-cli'] ||
+    packageManifest.dependencies['ember-cli'] ||
+    '';
+
+  projDetails.push(['ember-cli', emberCliVersion]);
   projDetails.push([
     'devDependencies',
     Object.keys(packageManifest.devDependencies).length,
@@ -68,7 +73,7 @@ module.exports = function (screen) {
       Object.keys(packageManifest.dependencies).length) ||
       0,
   ]);
-  projDetails.push(['node version', packageManifest.engines.node]);
+  projDetails.push(['node version', packageManifest.engines.node || '']);
   projDetails.push(['Package manager', pacman]);
   projDetails.push(['Github', gitRepo]);
 

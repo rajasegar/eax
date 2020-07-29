@@ -10,7 +10,9 @@ module.exports = function () {
   const packageManifest = JSON.parse(
     fs.readFileSync(`${root}/package.json`, 'utf-8')
   );
-  const emberCli = packageManifest.devDependencies['ember-cli'];
+  const emberCli =
+    packageManifest.devDependencies['ember-cli'] ||
+    packageManifest.dependencies['ember-cli'];
   const isOctane = semver.gte(semver.coerce(emberCli), semver.valid('3.15.0'));
   return isOctane;
 };
