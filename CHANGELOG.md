@@ -1,3 +1,10 @@
+# [0.17.0](https://github.com/rajasegar/eax/compare/v0.16.0...v0.17.0) (2020-07-29)
+
+
+### Features
+
+* add csv export option with filesizes page ([dc5b1ae](https://github.com/rajasegar/eax/commit/dc5b1ae4b83688a2451c53dec130c007ad7f64c4))
+
 # [0.16.0](https://github.com/rajasegar/eax/compare/v0.15.0...v0.16.0) (2020-07-29)
 
 
