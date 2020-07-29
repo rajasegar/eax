@@ -9,7 +9,7 @@ const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
 
-module.exports = function (screen) {
+module.exports = function (screen, currPage, selected) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
   const _root = process.argv[2] || '.';
@@ -51,6 +51,10 @@ module.exports = function (screen) {
 
   leftCol.setItems(items);
   leftCol.setLabel(`Controllers: (${items.length})`);
+
+  if (selected) {
+    leftCol.select(leftCol.getItemIndex(selected));
+  }
 
   const fileInfo = grid.set(0, 3, 2, 9, blessed.box, {
     label: 'File info:',

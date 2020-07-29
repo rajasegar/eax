@@ -8,10 +8,11 @@ const filesize = require('filesize');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
-const sortFilesBySize = require('../utils/sortFilesBySize');
+const walkSync = require('walk-sync');
+//const sortFilesBySize = require('../utils/sortFilesBySize');
 const highlight = require('../utils/highlight');
 
-module.exports = function (screen) {
+module.exports = function (screen, currPage, selected) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
   const _root = process.argv[2] || '.';
@@ -58,9 +59,25 @@ module.exports = function (screen) {
 
   const folder = path.resolve(`${root}/${namespace}`);
   if (fs.existsSync(folder)) {
-    let items = sortFilesBySize(namespace);
+    //let items = sortFilesBySize(namespace);
+
+    let items = walkSync(folder, {
+      directories: false,
+      includeBasePath: true,
+      globs: ['**/*.js'],
+      ignore: ['.gitkeep'],
+    }).map((f) => {
+      let s = f.replace(`${root}/${namespace}/`, '');
+      return s;
+    });
+
     leftCol.setItems(items);
     leftCol.setLabel(`Adapters: (${items.length})`);
+
+    // select list item
+    if (selected) {
+      leftCol.select(leftCol.getItemIndex(selected));
+    }
 
     const component = grid.set(0, 3, 2, 9, blessed.box, {
       label: 'File info:',

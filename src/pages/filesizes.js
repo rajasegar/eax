@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const R = require('ramda');
 const filesize = require('filesize');
-const componentsPage = require('./components');
+const entityPageMap = require('../utils/entity-page-map');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -54,9 +54,13 @@ module.exports = function (screen) {
   //set default table
   right.setData({ headers: ['Name', 'Size', 'LOC'], data: [[]] });
 
+  let currentEntity = 'adapters';
+
   leftCol.on('select', function (node) {
     const { content } = node;
     const name = content.slice(0, 1).toLowerCase() + content.slice(1);
+    currentEntity = name;
+
     const folder = path.resolve(`${root}/app/${name}`);
     if (fs.existsSync(folder)) {
       let items = walkSync(folder, {
@@ -93,7 +97,8 @@ module.exports = function (screen) {
     var i = screen.children.length;
     while (i--) screen.children[i].detach();
 
-    componentsPage(screen, 2, name);
+    const pageFunction = entityPageMap[currentEntity];
+    pageFunction(screen, 2, name);
     screen.render();
   });
 

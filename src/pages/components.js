@@ -45,7 +45,7 @@ module.exports = function (screen, currPage, selected) {
     },
   });
 
-  const folder = path.resolve(`${root}/app/components`);
+  const folder = `${root}/app/components/`;
   let _items = walkSync(folder, {
     directories: false,
     includeBasePath: true,
@@ -68,7 +68,7 @@ module.exports = function (screen, currPage, selected) {
   let isTypeScriptProject = false;
 
   const items = _items.map((f) => {
-    let s = f.replace(`${root}/app/components/`, '');
+    let s = f.replace(folder, '');
     isTypeScriptProject = s.includes('.ts');
     if (isTypeScriptProject) {
       s = pods ? s.replace('/component.ts', '') : s.replace('.ts', '');
@@ -80,10 +80,10 @@ module.exports = function (screen, currPage, selected) {
 
   leftCol.setItems(items);
   leftCol.setLabel(`Components: (${items.length})`);
+
+  // select list item
   if (selected) {
-    selected = selected
-      .replace(`${root}/app/components/`, '')
-      .replace('/component.js', '');
+    selected = selected.replace('/component.js', '');
     leftCol.select(leftCol.getItemIndex(selected));
   }
 
