@@ -1,3 +1,10 @@
+## [0.17.2](https://github.com/rajasegar/eax/compare/v0.17.1...v0.17.2) (2020-07-29)
+
+
+### Bug Fixes
+
+* **perf:** home page load time improvement ([1acb26a](https://github.com/rajasegar/eax/commit/1acb26af01e35a09045886490e5835ff9ccfe08e))
+
 ## [0.17.1](https://github.com/rajasegar/eax/compare/v0.17.0...v0.17.1) (2020-07-29)
 
 
