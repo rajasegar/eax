@@ -55,6 +55,7 @@ module.exports = function (screen) {
   right.setData({ headers: ['Name', 'Size', 'LOC'], data: [[]] });
 
   let currentEntity = 'adapters';
+  let exportData = [];
 
   leftCol.on('select', function (node) {
     const { content } = node;
@@ -74,6 +75,8 @@ module.exports = function (screen) {
         const stat = fs.readFileSync(f, 'utf-8');
         return [f.replace(root, ''), stat.length, stat.split('\n').length - 1];
       });
+
+      exportData = items;
 
       const fileSizeSort = R.sortWith([R.descend(R.prop(1))]);
 
@@ -102,6 +105,30 @@ module.exports = function (screen) {
     screen.render();
   });
 
+  const exportPrompt = blessed.prompt({
+    parent: screen,
+    top: 'center',
+    left: 'center',
+    height: 'shrink',
+    width: 'shrink',
+    border: 'line',
+    label: 'Export List',
+  });
+
+  right.rows.key('e', function () {
+    exportData.unshift('Name,Size,LOC');
+    exportPrompt.input('Enter file name :', `${currentEntity}.csv`, function (
+      err,
+      value
+    ) {
+      if (err) return;
+      fs.writeFile(`${value}`, exportData.join('\n'), 'utf8', (err) => {
+        if (err) throw err;
+      });
+      screen.render();
+    });
+  });
+
   leftCol.focus();
 
   leftCol.key(['tab'], function (/*ch, key*/) {
@@ -112,5 +139,6 @@ module.exports = function (screen) {
     leftCol.focus();
   });
 
+  screen.append(exportPrompt);
   screen.render();
 };
