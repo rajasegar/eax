@@ -1,3 +1,10 @@
+## [0.17.1](https://github.com/rajasegar/eax/compare/v0.17.0...v0.17.1) (2020-07-29)
+
+
+### Bug Fixes
+
+* app crashes when ember-cli is part of dependencies ([bbd2e11](https://github.com/rajasegar/eax/commit/bbd2e11ac629d63c5a8c4f4b444490fd301d17b4))
+
 # [0.17.0](https://github.com/rajasegar/eax/compare/v0.16.0...v0.17.0) (2020-07-29)
 
 
