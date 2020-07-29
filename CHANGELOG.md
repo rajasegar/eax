@@ -1,3 +1,10 @@
+# [0.16.0](https://github.com/rajasegar/eax/compare/v0.15.0...v0.16.0) (2020-07-29)
+
+
+### Features
+
+* add jump function to adapters and helpers ([dc170c2](https://github.com/rajasegar/eax/commit/dc170c29e27cf34b17daf86d907c6933baf28a0f))
+
 # [0.15.0](https://github.com/rajasegar/eax/compare/v0.14.0...v0.15.0) (2020-07-28)
 
 
