@@ -1,3 +1,10 @@
+## [0.17.3](https://github.com/rajasegar/eax/compare/v0.17.2...v0.17.3) (2020-07-29)
+
+
+### Bug Fixes
+
+* build page donut barchart data issue ([bdb9f5e](https://github.com/rajasegar/eax/commit/bdb9f5e195373c5ca5442bf22e491f865d121e13))
+
 ## [0.17.2](https://github.com/rajasegar/eax/compare/v0.17.1...v0.17.2) (2020-07-29)
 
 
