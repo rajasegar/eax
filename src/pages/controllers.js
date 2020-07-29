@@ -5,9 +5,11 @@ const contrib = require('blessed-contrib');
 const walkSync = require('walk-sync');
 const path = require('path');
 const getFileInfo = require('../utils/getFileInfo');
+const showFileInfo = require('../utils/showFileInfo');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
+const highlight = require('../utils/highlight');
 
 module.exports = function (screen, currPage, selected) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -72,11 +74,17 @@ module.exports = function (screen, currPage, selected) {
     label: 'Utils',
   });
 
+  const fileContents = grid.set(4, 3, 8, 9, blessed.box, {
+    label: 'Contents:',
+  });
+
   leftCol.on('select', function (node) {
     //console.log(node);
     const { content } = node;
     const js = `${root}/${namespace}/${content}`;
-    fileInfo.setContent(getFileInfo(js));
+    let _fileInfo = getFileInfo(js);
+    fileInfo.setContent(showFileInfo(_fileInfo));
+    fileContents.setContent(highlight(_fileInfo.content));
 
     getUtilDeps(js).then((data) => {
       utils.setItems(data);

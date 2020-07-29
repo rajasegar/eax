@@ -91,127 +91,133 @@ module.exports = function (screen) {
   });
 
   if (fs.existsSync(`${root}/dist/assets`)) {
-    const assetSize = getFolderSize(`${root}/dist/assets`);
-    barChart.setLabel(
-      'Build Assets: (dist/assets) File Size (KB): ' +
-        Math.round(assetSize / 1024)
-    );
+    getFolderSize(`${root}/dist/assets`).then((assetSize) => {
+      barChart.setLabel(
+        'Build Assets: (dist/assets) File Size (KB): ' +
+          Math.round(assetSize / 1024)
+      );
 
-    const jsSize = getAssetSize(`${root}/dist/assets`, ['*.js']);
-    const cssSize = getAssetSize(`${root}/dist/assets`, ['*.css']);
-    const imgSize = getAssetSize(`${root}/dist/assets`, [
-      '**/*.png',
-      '**/*.jpg',
-      '**/*.svg',
-    ]);
-    const jsonSize = getAssetSize(`${root}/dist/assets`, ['**/*.json']);
+      const jsSize = getAssetSize(`${root}/dist/assets`, ['*.js']);
+      const cssSize = getAssetSize(`${root}/dist/assets`, ['*.css']);
+      const imgSize = getAssetSize(`${root}/dist/assets`, [
+        '**/*.png',
+        '**/*.jpg',
+        '**/*.svg',
+      ]);
+      const jsonSize = getAssetSize(`${root}/dist/assets`, ['**/*.json']);
 
-    const donutData = [];
-    donutData.push({
-      label: 'JS',
-      percent: Math.round((jsSize / assetSize) * 100),
-    });
-    donutData.push({
-      label: 'CSS',
-      percent: Math.round((cssSize / assetSize) * 100),
-    });
-    donutData.push({
-      label: 'Images',
-      percent: Math.round((imgSize / assetSize) * 100),
-    });
-    donutData.push({
-      label: 'JSON',
-      percent: Math.round((jsonSize / assetSize) * 100),
-    });
+      const donutData = [];
+      donutData.push({
+        label: 'JS',
+        percent: Math.round((jsSize / assetSize) * 100),
+      });
+      donutData.push({
+        label: 'CSS',
+        percent: Math.round((cssSize / assetSize) * 100),
+      });
+      donutData.push({
+        label: 'Images',
+        percent: Math.round((imgSize / assetSize) * 100),
+      });
+      donutData.push({
+        label: 'JSON',
+        percent: Math.round((jsonSize / assetSize) * 100),
+      });
 
-    const percent = donutData.map((v, index) => {
-      return {
-        percent: v.percent,
-        label: v.label,
-        color: index,
-      };
-    });
+      const percent = donutData.map((v, index) => {
+        return {
+          percent: v.percent,
+          label: v.label,
+          color: index,
+        };
+      });
 
-    const kbSizes = [jsSize, cssSize, imgSize, jsonSize].map((s) =>
-      Math.round(s / 1024)
-    );
+      const kbSizes = [jsSize, cssSize, imgSize, jsonSize].map((s) =>
+        Math.round(s / 1024)
+      );
 
-    barChart.setData({ titles: assetTypes.map((a) => a.name), data: kbSizes });
-    donutChart.setData(percent);
+      barChart.setData({
+        titles: assetTypes.map((a) => a.name),
+        data: kbSizes,
+      });
+      donutChart.setData(percent);
 
-    assetTypeList.on('select', function (node) {
-      const { content } = node;
-      const _include = assetTypes
-        .find((a) => a.name === content)
-        .globs.map((g) => g.split('.')[1]);
+      screen.render();
 
-      const requireCompression = ['JS', 'CSS', 'SVG'].includes(content);
+      assetTypeList.on('select', function (node) {
+        const { content } = node;
+        const _include = assetTypes
+          .find((a) => a.name === content)
+          .globs.map((g) => g.split('.')[1]);
 
-      if (requireCompression) {
-        const cs = new CompressionStats({
-          inputPath: `${root}/dist/assets`,
-          include: _include,
-        });
+        const requireCompression = ['JS', 'CSS', 'SVG'].includes(content);
 
-        // show loading
-        loadingWidget.load('Calculating sizes, please wait...');
-
-        cs.getFileSizesObject()
-          .then((files) => {
-            if (files.length !== 0) {
-              data = files.map((f) => {
-                return [f.name, f.size, f.gzipSize, f.brotliSize];
-              });
-
-              const fileSizeSort = R.sortWith([R.descend(R.prop(2))]);
-
-              data = fileSizeSort(data).map((d) => {
-                const [name, length, gzip, brotli] = d;
-                return [
-                  name.replace(`${assetsFolder}/`, ''),
-                  filesize(length),
-                  filesize(gzip),
-                  filesize(brotli),
-                ];
-              });
-
-              //set default table
-              table.setData({
-                headers: ['Name', 'File Size', 'gzip', 'brotli'],
-                data,
-              });
-              loadingWidget.stop();
-              screen.render();
-            }
-          })
-          .catch((err) => {
-            loadingWidget.stop();
-            const message = err;
-            prompt.display(message, 0, function (err1) {
-              if (err1) return;
-              return;
-            });
+        if (requireCompression) {
+          const cs = new CompressionStats({
+            inputPath: `${root}/dist/assets`,
+            include: _include,
           });
-      } else {
-        // Process non compressed assets here
-        const _globs = assetTypes.find((a) => a.name === content).globs;
 
-        data = walkSync(assetsFolder, {
-          globs: _globs,
-          directories: false,
-          includeBasePath: true,
-        }).map((f) => {
-          const buffer = fs.readFileSync(f);
-          return [f.replace(`${assetsFolder}/`, ''), filesize(buffer.length)];
-        });
+          // show loading
+          loadingWidget.load('Calculating sizes, please wait...');
 
-        //set default table
-        table.setData({
-          headers: ['Name', 'File Size'],
-          data,
-        });
-        screen.render();
-      }
+          cs.getFileSizesObject()
+            .then((files) => {
+              if (files.length !== 0) {
+                data = files.map((f) => {
+                  return [f.name, f.size, f.gzipSize, f.brotliSize];
+                });
+
+                const fileSizeSort = R.sortWith([R.descend(R.prop(2))]);
+
+                data = fileSizeSort(data).map((d) => {
+                  const [name, length, gzip, brotli] = d;
+                  return [
+                    name.replace(`${assetsFolder}/`, ''),
+                    filesize(length),
+                    filesize(gzip),
+                    filesize(brotli),
+                  ];
+                });
+
+                //set default table
+                table.setData({
+                  headers: ['Name', 'File Size', 'gzip', 'brotli'],
+                  data,
+                });
+                loadingWidget.stop();
+                screen.render();
+              }
+            })
+            .catch((err) => {
+              loadingWidget.stop();
+              const message = err;
+              prompt.display(message, 0, function (err1) {
+                if (err1) return;
+                return;
+              });
+            });
+        } else {
+          // Process non compressed assets here
+          const _globs = assetTypes.find((a) => a.name === content).globs;
+
+          data = walkSync(assetsFolder, {
+            globs: _globs,
+            directories: false,
+            includeBasePath: true,
+          }).map((f) => {
+            const buffer = fs.readFileSync(f);
+            return [f.replace(`${assetsFolder}/`, ''), filesize(buffer.length)];
+          });
+
+          //set default table
+          table.setData({
+            headers: ['Name', 'File Size'],
+            data,
+          });
+          screen.render();
+        }
+      });
     });
 
     table.focus();

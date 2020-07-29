@@ -10,6 +10,7 @@ const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getFileInfo = require('../utils/getFileInfo');
 const showFileInfo = require('../utils/showFileInfo');
+const highlight = require('../utils/highlight');
 
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
@@ -83,7 +84,7 @@ module.exports = function (screen) {
     const js = `${root}/${namespace}/${content}`;
     const _fileInfo = getFileInfo(js);
     component.setContent(showFileInfo(_fileInfo));
-    fileContent.setContent(_fileInfo.content);
+    fileContent.setContent(highlight(_fileInfo.content));
 
     getUtilDeps(js).then((data) => {
       utils.setItems(data);

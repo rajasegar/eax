@@ -9,9 +9,11 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const voca = require('voca');
 const getFileInfo = require('../utils/getFileInfo');
+const showFileInfo = require('../utils/showFileInfo');
 const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
+const highlight = require('../utils/highlight');
 const log = require('../utils/log');
 
 module.exports = function (screen) {
@@ -74,18 +76,24 @@ module.exports = function (screen) {
       label: 'Utils',
     });
 
-    const usedIn = grid.set(4, 3, 8, 9, blessed.list, {
+    const usedIn = grid.set(4, 3, 8, 4, blessed.list, {
       label: 'Used in:',
       keys: true,
       vi: true,
       style: { fg: 'yellow', selected: { bg: 'blue' } },
     });
 
+    const fileContents = grid.set(4, 7, 8, 5, blessed.box, {
+      label: 'Contents:',
+    });
+
     leftCol.on('select', function (node) {
       //console.log(node);
       const { content } = node;
       const js = `${root}/${namespace}/${content}`;
-      fileInfo.setContent(getFileInfo(js));
+      const _fileInfo = getFileInfo(js);
+      fileInfo.setContent(showFileInfo(_fileInfo));
+      fileContents.setContent(highlight(_fileInfo.content));
 
       // Find service name in all js files
       const serviceName = voca.camelCase(content.replace('.js', ''));
