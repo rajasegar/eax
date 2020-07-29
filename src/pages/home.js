@@ -33,10 +33,12 @@ module.exports = function (screen) {
     //'validators'
   ];
 
+  // Getting the directories inside app/ folder
   let _folders = walkSync
     .entries(`${root}/app`)
     .filter((entry) => entry.isDirectory());
 
+  // Checking the same against the standard list of folders for an ember project
   _folders = _folders
     .map((f) => f.relativePath.replace('/', ''))
     .filter((f) => folders.includes(f));
@@ -77,13 +79,6 @@ module.exports = function (screen) {
   projDetails.push(['Package manager', pacman]);
   projDetails.push(['Github', gitRepo]);
 
-  const projSize = getFolderSize(root);
-  projDetails.push(['Project size', filesize(projSize)]);
-
-  const appSize = getFolderSize(`${root}/app`);
-
-  projDetails.push(['app/ size', filesize(appSize)]);
-
   const projWidget = grid.set(0, 0, 6, 4, contrib.table, {
     label: packageManifest.name,
     selectedBg: 'black',
@@ -95,7 +90,7 @@ module.exports = function (screen) {
   projWidget.setData({ headers: ['', ''], data: projDetails });
 
   const topRow = grid.set(0, 4, 6, 8, contrib.bar, {
-    label: 'Total File Size (KB): ' + Math.round(appSize / 1024),
+    label: 'Total File Size (KB): ',
     barWidth: 4,
     barSpacing: 5,
     xOffset: 0,
@@ -111,27 +106,44 @@ module.exports = function (screen) {
     data: [],
   });
 
-  const folderSizes = _folders.map((f) => {
-    return getFolderSize(`${root}/app/${f}`);
+  getFolderSize(root).then((size) => {
+    projDetails.push(['Project size', filesize(size)]);
+    projWidget.setData({ headers: ['', ''], data: projDetails });
+    screen.render();
   });
 
-  const data = folderSizes.map((f) => Math.round(f / 1024)); // size in kb
+  getFolderSize(`${root}/app`).then((appSize) => {
+    projDetails.push(['app/ size', filesize(appSize)]);
+    projWidget.setData({ headers: ['', ''], data: projDetails });
+    topRow.setLabel('Total File Size (KB): ' + Math.round(appSize / 1024));
+    screen.render();
 
-  const percent = folderSizes.map((size, index) => {
-    let _label = _folders[index];
-    let _percent = Math.round((size / appSize) * 100);
+    const folderSizes = _folders.map((f) => {
+      return getFolderSize(`${root}/app/${f}`);
+    });
 
-    // This is a bug in Donut widget
-    if (_percent === 1) _percent = 0.01;
+    Promise.all(folderSizes).then((values) => {
+      const data = values.map((f) => Math.round(f / 1024)); // size in kb
 
-    return {
-      percent: _percent,
-      label: _label,
-      color: index,
-    };
+      const percent = values.map((size, index) => {
+        let _label = _folders[index];
+        let _percent = Math.round((size / appSize) * 100);
+
+        // This is a bug in Donut widget
+        if (_percent === 1) _percent = 0.01;
+
+        return {
+          percent: _percent,
+          label: _label,
+          color: index,
+        };
+      });
+
+      topRow.setData({ titles: _folders, data });
+      bottomRow.setData(percent);
+      screen.render();
+    });
   });
 
-  topRow.setData({ titles: _folders, data });
-  bottomRow.setData(percent);
-  screen.render();
+  //screen.render();
 };

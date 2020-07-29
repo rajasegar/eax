@@ -8,13 +8,20 @@ const getTotalSize = function (directoryPath) {
     includeBasePath: true,
   });
 
-  let totalSize = 0;
-
-  arrayOfFiles.forEach(function (filePath) {
-    totalSize += fs.statSync(filePath).size;
+  let promises = arrayOfFiles.map(function (filePath) {
+    return new Promise((resolve, reject) => {
+      fs.stat(filePath, (err, stats) => {
+        if (err) reject(err);
+        resolve(stats);
+      });
+    });
   });
 
-  return totalSize;
+  return Promise.all(promises).then((values) => {
+    let sizes = values.map((v) => v.size);
+    let _totalSize = sizes.reduce((a, b) => a + b, 0);
+    return _totalSize;
+  });
 };
 
 module.exports = getTotalSize;
