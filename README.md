@@ -15,7 +15,7 @@ code maintainability and modularity.
 - Find the largest and heavy components and their dependencies with other entities
 - Find where your components, services are used in the app
 - Find the asset composition of your builds like percentage of JS,CSS and images
-- View the compression statistics for your build assets like Gzip and Brotli
+- View the compression statistics for your build assets like Gzip and Brotli and export them as CSV
 
 ## Install
 ```
@@ -103,5 +103,5 @@ Yes. You can use `j`,`k`,`gg`,`G`,`l` and `/`
 
 ### Can I export the data from the lists?
 Yes. You can press 'e' to export your data from the lists in CSV format. 
-It will prompt for a file name. But at present only the data from the `File Sizes` pages
+It will prompt for a file name. But at present only the data from the `File Sizes` and `Build Assets` pages
 can be exported. We are working on to add export feature to more lists.
