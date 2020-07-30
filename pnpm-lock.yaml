@@ -2,12 +2,12 @@ dependencies:
   blessed: 0.1.81
   blessed-contrib: 4.8.20
   cli-highlight: 2.1.4
-  compression-stats-cli: 1.2.2
   filesize: 6.1.0
   ramda: 0.27.0
   semver: 7.3.2
   voca: 1.4.0
   walk-sync: 2.2.0
+  workerpool: 6.0.0
 devDependencies:
   '@semantic-release/changelog': 5.0.1_semantic-release@17.1.1
   '@semantic-release/git': 9.0.0_semantic-release@17.1.1
@@ -675,19 +675,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-sq2sWtrqKPkEXAC8tEJA1+BqAH9GbFkGBtUOqrUX57VSfwp8xyktctk+uLoRy5eccTdxzDcVIztlYDpKs3Jv1Q==
-  /compression-stats-cli/1.2.2:
-    dependencies:
-      chalk: 4.1.0
-      filesize: 6.1.0
-      walk-sync: 2.2.0
-      workerpool: 6.0.0
-      yargs: 15.4.1
-    dev: false
-    engines:
-      node: '>= 10.16.0'
-    hasBin: true
-    resolution:
-      integrity: sha512-1tjun/PIXEcWGZaaqQ9A604Tm1zYyroXWMi5Be+Y/WYwHz4TMeAYSTVg86AZHTdIZzSblfshx7vIcEHubmJFeQ==
   /concat-map/0.0.1:
     resolution:
       integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
@@ -3250,7 +3237,6 @@ specifiers:
   blessed: ^0.1.81
   blessed-contrib: ^4.8.20
   cli-highlight: ^2.1.4
-  compression-stats-cli: ^1.2.2
   eslint: ^7.5.0
   eslint-config-prettier: ^6.11.0
   eslint-plugin-node: ^11.1.0
@@ -3262,3 +3248,4 @@ specifiers:
   semver: ^7.3.2
   voca: ^1.4.0
   walk-sync: ^2.2.0
+  workerpool: ^6.0.0

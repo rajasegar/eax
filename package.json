@@ -28,12 +28,12 @@
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.20",
     "cli-highlight": "^2.1.4",
-    "compression-stats-cli": "^1.2.2",
     "filesize": "^6.1.0",
     "ramda": "^0.27.0",
     "semver": "^7.3.2",
     "voca": "^1.4.0",
-    "walk-sync": "^2.2.0"
+    "walk-sync": "^2.2.0",
+    "workerpool": "^6.0.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",

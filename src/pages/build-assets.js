@@ -9,13 +9,14 @@ const R = require('ramda');
 const getFolderSize = require('../utils/getFolderSize');
 const getAssetSize = require('../utils/getAssetSize');
 const filesize = require('filesize');
-const CompressionStats = require('compression-stats-cli');
+const getCompressionStats = require('../utils/getCompressionStats');
 
 module.exports = function (screen) {
   const _root = process.argv[2] || '.';
   const root = path.resolve(_root);
 
   const assetTypes = [
+    { name: 'HTML', globs: ['**/*.html'] },
     { name: 'JS', globs: ['**/*.js'] },
     { name: 'CSS', globs: ['**/*.css'] },
     { name: 'Images', globs: ['**/*.png', '**/*.jpg', '**/*.svg'] },
@@ -23,6 +24,19 @@ module.exports = function (screen) {
   ];
 
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
+
+  const exportPrompt = blessed.prompt({
+    parent: screen,
+    top: 'center',
+    left: 'center',
+    height: 'shrink',
+    width: 'shrink',
+    border: 'line',
+    label: 'Export Build Stats',
+  });
+
+  let exportData = [];
+  let currentEntity = 'HTML';
 
   const loadingWidget = blessed.loading({
     parent: screen,
@@ -47,10 +61,10 @@ module.exports = function (screen) {
     vi: true,
     fg: 'green',
     label: 'dist/assets/',
-    columnWidth: [50, 10, 10, 10],
+    columnWidth: [70, 10, 10, 10],
   });
 
-  const assetsFolder = `${root}/dist/assets`;
+  const assetsFolder = `${root}/dist/`;
   let data = [[]];
 
   const barChart = grid.set(6, 0, 6, 6, contrib.bar, {
@@ -146,22 +160,18 @@ module.exports = function (screen) {
 
       assetTypeList.on('select', function (node) {
         const { content } = node;
-        const _include = assetTypes
-          .find((a) => a.name === content)
-          .globs.map((g) => g.split('.')[1]);
+        currentEntity = content;
 
-        const requireCompression = ['JS', 'CSS', 'SVG'].includes(content);
+        const requireCompression = ['HTML', 'JS', 'CSS', 'SVG'].includes(
+          content
+        );
 
+        const _globs = assetTypes.find((a) => a.name === content).globs;
         if (requireCompression) {
-          const cs = new CompressionStats({
-            inputPath: `${root}/dist/assets`,
-            include: _include,
-          });
-
           // show loading
           loadingWidget.load('Calculating sizes, please wait...');
 
-          cs.getFileSizesObject()
+          getCompressionStats(assetsFolder, _globs)
             .then((files) => {
               if (files.length !== 0) {
                 data = files.map((f) => {
@@ -173,18 +183,21 @@ module.exports = function (screen) {
                 data = fileSizeSort(data).map((d) => {
                   const [name, length, gzip, brotli] = d;
                   return [
-                    name.replace(`${assetsFolder}/`, ''),
+                    name.replace(assetsFolder, ''),
                     filesize(length),
                     filesize(gzip),
                     filesize(brotli),
                   ];
                 });
 
+                exportData = data;
+
                 //set default table
                 table.setData({
                   headers: ['Name', 'File Size', 'gzip', 'brotli'],
                   data,
                 });
+                table.setLabel(`dist/ ${content}: (${data.length}) files`);
                 loadingWidget.stop();
                 screen.render();
               }
@@ -199,7 +212,6 @@ module.exports = function (screen) {
             });
         } else {
           // Process non compressed assets here
-          const _globs = assetTypes.find((a) => a.name === content).globs;
 
           data = walkSync(assetsFolder, {
             globs: _globs,
@@ -207,14 +219,17 @@ module.exports = function (screen) {
             includeBasePath: true,
           }).map((f) => {
             const buffer = fs.readFileSync(f);
-            return [f.replace(`${assetsFolder}/`, ''), filesize(buffer.length)];
+            return [f.replace(assetsFolder, ''), filesize(buffer.length)];
           });
+
+          exportData = data;
 
           //set default table
           table.setData({
             headers: ['Name', 'File Size'],
             data,
           });
+          table.setLabel(`dist/ ${content}: (${data.length}) files`);
           screen.render();
         }
       });
@@ -228,7 +243,6 @@ module.exports = function (screen) {
       Press any key to dismiss this message.`;
     prompt.display(message, 0, function (err) {
       if (err) return;
-      //return callback(null, value);
       return;
     });
   }
@@ -237,10 +251,28 @@ module.exports = function (screen) {
   screen.append(loadingWidget);
   assetTypeList.focus();
 
-  screen.key(['tab'], function (/*ch, key*/) {
-    if (screen.focused === assetTypeList) table.focus();
-    else assetTypeList.focus();
+  assetTypeList.key(['tab'], function (/*ch, key*/) {
+    table.focus();
+  });
+  table.rows.key(['tab'], function (/*ch, key*/) {
+    assetTypeList.focus();
   });
 
+  table.rows.key('e', function () {
+    exportData.unshift('Name,Size,Gzip,Brotli');
+    exportPrompt.input(
+      'Enter file name :',
+      `build-stats-${currentEntity}.csv`,
+      function (err, value) {
+        if (err) return;
+        fs.writeFile(`${value}`, exportData.join('\n'), 'utf8', (err) => {
+          if (err) throw err;
+        });
+        screen.render();
+      }
+    );
+  });
+
+  screen.append(exportPrompt);
   screen.render();
 };

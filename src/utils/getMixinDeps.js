@@ -1,6 +1,7 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
+const log = require('./log');
 
 module.exports = function (file) {
   const regex = /import [a-zA-Z- {},]* from '\w+\/mixins\/([a-zA-Z-]*)';/;
@@ -16,8 +17,8 @@ module.exports = function (file) {
           });
           resolve(names);
         })
-        .catch(() => {
-          // log erro
+        .catch((err) => {
+          log(err);
           resolve([]);
         });
     } else {

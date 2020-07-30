@@ -120,7 +120,9 @@ module.exports = function (screen, currPage, selected) {
       })
       .catch((err) => {
         log(err);
-        usedIn.setItems(['Some error occured.']);
+        usedIn.setItems([
+          'Some error occured. Please check eax.log for more details.',
+        ]);
         usedIn.setLabel(`Used in :`);
         screen.render();
       });

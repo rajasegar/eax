@@ -16,6 +16,9 @@ const getFileInfo = require('../utils/getFileInfo');
 const showFileInfo = require('../utils/showFileInfo');
 
 module.exports = function (screen, currPage, selected) {
+  const ERROR_MESSAGE =
+    'Some error occured. Please check eax.log for more details.';
+
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
   const _root = process.argv[2] || '.';
@@ -208,8 +211,8 @@ module.exports = function (screen, currPage, selected) {
       })
       .catch((err) => {
         log(err);
-        usedInComponents.setItems(['Some error occured.']);
-        usedInRoutes.setItems(['Some error occured.']);
+        usedInComponents.setItems([ERROR_MESSAGE]);
+        usedInRoutes.setItems([ERROR_MESSAGE]);
         usedInComponents.setLabel(`Used in components`);
         usedInRoutes.setLabel(`Used in routes`);
         screen.render();

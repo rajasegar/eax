@@ -2,6 +2,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
 const isOctane = require('./isOctane');
+const log = require('./log');
 
 module.exports = function (file) {
   const _isOctane = isOctane();
@@ -22,8 +23,8 @@ module.exports = function (file) {
           });
           resolve(names);
         })
-        .catch(() => {
-          // log error
+        .catch((err) => {
+          log(err);
           resolve([]);
         });
     } else {

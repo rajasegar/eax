@@ -9,7 +9,6 @@ const getUtilDeps = require('../utils/getUtilDeps');
 const getMixinDeps = require('../utils/getMixinDeps');
 const getServiceDeps = require('../utils/getServiceDeps');
 const walkSync = require('walk-sync');
-//const sortFilesBySize = require('../utils/sortFilesBySize');
 const highlight = require('../utils/highlight');
 
 module.exports = function (screen, currPage, selected) {
