@@ -1,3 +1,10 @@
+# [0.18.0](https://github.com/rajasegar/eax/compare/v0.17.3...v0.18.0) (2020-07-30)
+
+
+### Features
+
+* export option for build assets ([9344d0a](https://github.com/rajasegar/eax/commit/9344d0ab7755da60d0e3b205b46f24d8825395ec))
+
 ## [0.17.3](https://github.com/rajasegar/eax/compare/v0.17.2...v0.17.3) (2020-07-29)
 
 
