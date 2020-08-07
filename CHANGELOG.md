@@ -1,3 +1,10 @@
+## [0.18.1](https://github.com/rajasegar/eax/compare/v0.18.0...v0.18.1) (2020-08-07)
+
+
+### Bug Fixes
+
+* add tab and export shortcuts to help page ([3f39872](https://github.com/rajasegar/eax/commit/3f39872da29398925982bd6eb81add7f4c956e28))
+
 # [0.18.0](https://github.com/rajasegar/eax/compare/v0.17.3...v0.18.0) (2020-07-30)
 
 
