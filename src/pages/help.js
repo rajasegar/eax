@@ -26,6 +26,8 @@ module.exports = function (screen) {
     ['Go to the beginning of any list', 'gg'],
     ['Go to the end of any list', 'G'],
     ['Help', '? / !'],
+    ['Navigate within a page', 'Tab'],
+    ['Export list data as CSV', 'e'],
   ];
 
   // Generating keycodes from page objects
