@@ -62,6 +62,8 @@ module.exports = function (screen) {
     fg: 'green',
     label: 'dist/assets/',
     columnWidth: [70, 10, 10, 10],
+    selectedBg: 'white',
+    selectedFg: 'black',
   });
 
   const assetsFolder = `${root}/dist/`;

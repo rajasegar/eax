@@ -35,7 +35,7 @@ module.exports = function (screen) {
     label: 'Mixins',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     search: function (callback) {
       searchPrompt.input('Search Mixin:', '', function (err, value) {
         if (err) return;
@@ -59,7 +59,7 @@ module.exports = function (screen) {
       label: 'Used in:',
       keys: true,
       vi: true,
-      style: { fg: 'yellow', selected: { bg: 'blue' } },
+      style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     });
 
     const mixins = grid.set(2, 5, 2, 2, blessed.list, {

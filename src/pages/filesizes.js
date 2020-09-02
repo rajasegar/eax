@@ -9,6 +9,24 @@ const R = require('ramda');
 const filesize = require('filesize');
 const entityPageMap = require('../utils/entity-page-map');
 
+const style = {
+  bg: 'black',
+  fg: 'yellow',
+  border: {
+    type: 'line',
+    bg: 'black',
+  },
+  focus: {
+    border: {
+      fg: 'white',
+    },
+  },
+  selected: {
+    fg: 'black',
+    bg: 'white',
+  },
+};
+
 module.exports = function (screen) {
   const grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
 
@@ -38,7 +56,7 @@ module.exports = function (screen) {
     label: 'Menu',
     keys: true,
     vi: true,
-    style: { fg: 'yellow' },
+    style,
   });
   leftCol.setItems(menu);
 
@@ -47,8 +65,10 @@ module.exports = function (screen) {
     keys: true,
     vi: true,
     interactive: true,
-    style: { fg: 'yellow' },
+    style,
     columnWidth: [80, 10, 10],
+    selectedBg: 'white',
+    selectedFg: 'black',
   });
 
   //set default table

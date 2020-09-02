@@ -29,7 +29,7 @@ module.exports = function (screen) {
     label: 'Routes',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     search: function (callback) {
       prompt.input('Search Route:', '', function (err, value) {
         if (err) return;

@@ -31,7 +31,7 @@ module.exports = function (screen) {
   const leftCol = grid.set(0, 0, 12, 3, blessed.list, {
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     label: 'Utils',
     search: function (callback) {
       prompt.input('Search Util:', '', function (err, value) {
@@ -64,7 +64,7 @@ module.exports = function (screen) {
       label: 'Used in:',
       keys: true,
       vi: true,
-      style: { fg: 'yellow', selected: { bg: 'blue' } },
+      style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     });
 
     const mixins = grid.set(2, 3, 2, 4, blessed.list, {

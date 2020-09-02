@@ -32,7 +32,7 @@ module.exports = function (screen) {
     label: 'Models',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     search: function (callback) {
       prompt.input('Search Model:', '', function (err, value) {
         if (err) return;

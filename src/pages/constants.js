@@ -31,7 +31,7 @@ module.exports = function (screen, currPage, selected) {
     label: 'Constants',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     search: function (callback) {
       prompt.input('Search Adapter:', '', function (err, value) {
         if (err) return;

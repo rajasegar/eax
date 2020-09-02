@@ -39,7 +39,7 @@ module.exports = function (screen, currPage, selected) {
     label: 'Components',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     search: function (callback) {
       prompt.input('Search Component:', '', function (err, value) {
         if (err) return;

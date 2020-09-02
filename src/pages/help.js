@@ -12,6 +12,8 @@ module.exports = function (screen) {
     keys: true,
     vi: true,
     style: { fg: 'yellow', bg: 'black' },
+    selectedBg: 'white',
+    selectedFg: 'black',
     columnWidth: [40, 40],
   });
 

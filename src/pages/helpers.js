@@ -34,7 +34,7 @@ module.exports = function (screen, currPage, selected) {
     label: 'Helpers',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     search: function (callback) {
       prompt.input('Search Helper:', '', function (err, value) {
         if (err) return;
@@ -69,7 +69,7 @@ module.exports = function (screen, currPage, selected) {
     label: 'Used in:',
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
   });
 
   const fileContent = grid.set(4, 7, 8, 5, blessed.box, {

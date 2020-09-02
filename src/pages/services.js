@@ -35,7 +35,7 @@ module.exports = function (screen) {
   const leftCol = grid.set(0, 0, 12, 3, blessed.list, {
     keys: true,
     vi: true,
-    style: { fg: 'yellow', selected: { bg: 'blue' } },
+    style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     label: 'Services',
     search: function (callback) {
       prompt.input('Search Service:', '', function (err, value) {
@@ -80,7 +80,7 @@ module.exports = function (screen) {
       label: 'Used in:',
       keys: true,
       vi: true,
-      style: { fg: 'yellow', selected: { bg: 'blue' } },
+      style: { fg: 'yellow', selected: { bg: 'white', fg: 'black' } },
     });
 
     const fileContents = grid.set(4, 7, 8, 5, blessed.box, {
