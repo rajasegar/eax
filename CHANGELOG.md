@@ -1,3 +1,10 @@
+## [0.18.2](https://github.com/rajasegar/eax/compare/v0.18.1...v0.18.2) (2020-09-02)
+
+
+### Bug Fixes
+
+* list and table fg and bg colors ([a3225fa](https://github.com/rajasegar/eax/commit/a3225fae379f3676a33f015cfa55238be1e78570))
+
 ## [0.18.1](https://github.com/rajasegar/eax/compare/v0.18.0...v0.18.1) (2020-08-07)
 
 
